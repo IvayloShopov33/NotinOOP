@@ -31,6 +31,18 @@
     <Filter Include="Source Files\Exceptions">
       <UniqueIdentifier>{e8bbc3c5-03f5-4771-b745-a7bb37141655}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Users">
+      <UniqueIdentifier>{8e83e2c9-9a86-4b51-80d2-eb9c5872493c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Validators">
+      <UniqueIdentifier>{1b298e2c-a7b9-4bb1-aa52-0c9cabf02743}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Validators">
+      <UniqueIdentifier>{637e2bfa-d6b3-4a87-af36-47262b3f0faa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Users">
+      <UniqueIdentifier>{2c4b3658-b7bc-49c2-b0d7-e2821cea7398}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="StartUp.cpp">
@@ -45,6 +57,18 @@
     <ClCompile Include="CommandParseException.cpp">
       <Filter>Source Files\Exceptions</Filter>
     </ClCompile>
+    <ClCompile Include="UserCredentialsValidator.cpp">
+      <Filter>Source Files\Validators</Filter>
+    </ClCompile>
+    <ClCompile Include="User.cpp">
+      <Filter>Source Files\Users</Filter>
+    </ClCompile>
+    <ClCompile Include="Buyer.cpp">
+      <Filter>Source Files\Users</Filter>
+    </ClCompile>
+    <ClCompile Include="Admin.cpp">
+      <Filter>Source Files\Users</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -58,6 +82,21 @@
     </ClInclude>
     <ClInclude Include="CommandParseException.h">
       <Filter>Header Files\Exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="UserCredentialsValidator.h">
+      <Filter>Header Files\Validators</Filter>
+    </ClInclude>
+    <ClInclude Include="User.h">
+      <Filter>Header Files\Users</Filter>
+    </ClInclude>
+    <ClInclude Include="UserVisitor.h">
+      <Filter>Header Files\Users</Filter>
+    </ClInclude>
+    <ClInclude Include="Buyer.h">
+      <Filter>Header Files\Users</Filter>
+    </ClInclude>
+    <ClInclude Include="Admin.h">
+      <Filter>Header Files\Users</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -123,16 +123,25 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Admin.cpp" />
+    <ClCompile Include="Buyer.cpp" />
     <ClCompile Include="CommandParseException.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="LoginCommand.cpp" />
     <ClCompile Include="StartUp.cpp" />
+    <ClCompile Include="User.cpp" />
+    <ClCompile Include="UserCredentialsValidator.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Admin.h" />
+    <ClInclude Include="Buyer.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="CommandParseException.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="LoginCommand.h" />
+    <ClInclude Include="User.h" />
+    <ClInclude Include="UserCredentialsValidator.h" />
+    <ClInclude Include="UserVisitor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

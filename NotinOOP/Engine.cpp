@@ -83,6 +83,9 @@ void Engine::run() {
         catch (const CommandParseException& e) {
             std::cout << "Syntax error: " << e.what() << "\n";
         }
+        catch (const std::invalid_argument& e) {
+            std::cout << "Validation error: " << e.what() << "\n";
+        }
         catch (const std::exception& e) {
             std::cout << "Error: " << e.what() << "\n";
         }
