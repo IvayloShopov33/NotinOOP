@@ -127,10 +127,15 @@
     <ClCompile Include="Buyer.cpp" />
     <ClCompile Include="CommandParseException.cpp" />
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="Fragrance.cpp" />
+    <ClCompile Include="FragranceValidator.cpp" />
     <ClCompile Include="LoginCommand.cpp" />
     <ClCompile Include="PasswordHasher.cpp" />
+    <ClCompile Include="Review.cpp" />
+    <ClCompile Include="ReviewValidator.cpp" />
     <ClCompile Include="SaveToFileVisitor.cpp" />
     <ClCompile Include="StartUp.cpp" />
+    <ClCompile Include="TextValidator.cpp" />
     <ClCompile Include="User.cpp" />
     <ClCompile Include="UserCredentialsValidator.cpp" />
   </ItemGroup>
@@ -140,9 +145,14 @@
     <ClInclude Include="Command.h" />
     <ClInclude Include="CommandParseException.h" />
     <ClInclude Include="Engine.h" />
+    <ClInclude Include="Fragrance.h" />
+    <ClInclude Include="FragranceValidator.h" />
     <ClInclude Include="LoginCommand.h" />
     <ClInclude Include="PasswordHasher.h" />
+    <ClInclude Include="Review.h" />
+    <ClInclude Include="ReviewValidator.h" />
     <ClInclude Include="SaveToFileVisitor.h" />
+    <ClInclude Include="TextValidator.h" />
     <ClInclude Include="User.h" />
     <ClInclude Include="UserCredentialsValidator.h" />
     <ClInclude Include="UserVisitor.h" />

@@ -75,6 +75,21 @@
     <ClCompile Include="PasswordHasher.cpp">
       <Filter>Source Files\Validators</Filter>
     </ClCompile>
+    <ClCompile Include="Review.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TextValidator.cpp">
+      <Filter>Source Files\Validators</Filter>
+    </ClCompile>
+    <ClCompile Include="ReviewValidator.cpp">
+      <Filter>Source Files\Validators</Filter>
+    </ClCompile>
+    <ClCompile Include="FragranceValidator.cpp">
+      <Filter>Source Files\Validators</Filter>
+    </ClCompile>
+    <ClCompile Include="Fragrance.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -109,6 +124,21 @@
     </ClInclude>
     <ClInclude Include="PasswordHasher.h">
       <Filter>Header Files\Validators</Filter>
+    </ClInclude>
+    <ClInclude Include="Review.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextValidator.h">
+      <Filter>Header Files\Validators</Filter>
+    </ClInclude>
+    <ClInclude Include="ReviewValidator.h">
+      <Filter>Header Files\Validators</Filter>
+    </ClInclude>
+    <ClInclude Include="FragranceValidator.h">
+      <Filter>Header Files\Validators</Filter>
+    </ClInclude>
+    <ClInclude Include="Fragrance.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
