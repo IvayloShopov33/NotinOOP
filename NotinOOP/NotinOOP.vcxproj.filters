@@ -69,6 +69,12 @@
     <ClCompile Include="Admin.cpp">
       <Filter>Source Files\Users</Filter>
     </ClCompile>
+    <ClCompile Include="SaveToFileVisitor.cpp">
+      <Filter>Source Files\Users</Filter>
+    </ClCompile>
+    <ClCompile Include="PasswordHasher.cpp">
+      <Filter>Source Files\Validators</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -97,6 +103,12 @@
     </ClInclude>
     <ClInclude Include="Admin.h">
       <Filter>Header Files\Users</Filter>
+    </ClInclude>
+    <ClInclude Include="SaveToFileVisitor.h">
+      <Filter>Header Files\Users</Filter>
+    </ClInclude>
+    <ClInclude Include="PasswordHasher.h">
+      <Filter>Header Files\Validators</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -29,6 +29,7 @@ void Buyer::addToBalance(double amount) {
     if (amount <= 0) {
         throw std::invalid_argument("The amount must be positive.");
     }
+
     balance += amount;
 }
 
