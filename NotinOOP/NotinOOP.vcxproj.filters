@@ -49,6 +49,12 @@
     <Filter Include="Source Files\Discounts">
       <UniqueIdentifier>{58bfbd2d-9658-4497-9295-25d5ac91e9a2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Repositories">
+      <UniqueIdentifier>{3ec4108c-ae53-4bc4-b458-b617c364231d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Repositories">
+      <UniqueIdentifier>{a217a0db-ec4f-4c5a-a3b0-fa2045a2b4fd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="StartUp.cpp">
@@ -113,6 +119,15 @@
     </ClCompile>
     <ClCompile Include="Purchase.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DiscountRepository.cpp">
+      <Filter>Source Files\Repositories</Filter>
+    </ClCompile>
+    <ClCompile Include="FragranceRepository.cpp">
+      <Filter>Source Files\Repositories</Filter>
+    </ClCompile>
+    <ClCompile Include="UserRepository.cpp">
+      <Filter>Source Files\Repositories</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -181,6 +196,15 @@
     </ClInclude>
     <ClInclude Include="Purchase.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DiscountRepository.h">
+      <Filter>Header Files\Repositories</Filter>
+    </ClInclude>
+    <ClInclude Include="FragranceRepository.h">
+      <Filter>Header Files\Repositories</Filter>
+    </ClInclude>
+    <ClInclude Include="UserRepository.h">
+      <Filter>Header Files\Repositories</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

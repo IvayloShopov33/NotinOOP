@@ -102,6 +102,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp23</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -129,9 +130,11 @@
     <ClCompile Include="Buyer.cpp" />
     <ClCompile Include="CommandParseException.cpp" />
     <ClCompile Include="Discount.cpp" />
+    <ClCompile Include="DiscountRepository.cpp" />
     <ClCompile Include="DiscountValidator.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Fragrance.cpp" />
+    <ClCompile Include="FragranceRepository.cpp" />
     <ClCompile Include="FragranceValidator.cpp" />
     <ClCompile Include="LoginCommand.cpp" />
     <ClCompile Include="PasswordHasher.cpp" />
@@ -144,6 +147,7 @@
     <ClCompile Include="TextValidator.cpp" />
     <ClCompile Include="User.cpp" />
     <ClCompile Include="UserCredentialsValidator.cpp" />
+    <ClCompile Include="UserRepository.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Admin.h" />
@@ -153,9 +157,11 @@
     <ClInclude Include="Command.h" />
     <ClInclude Include="CommandParseException.h" />
     <ClInclude Include="Discount.h" />
+    <ClInclude Include="DiscountRepository.h" />
     <ClInclude Include="DiscountValidator.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Fragrance.h" />
+    <ClInclude Include="FragranceRepository.h" />
     <ClInclude Include="FragranceValidator.h" />
     <ClInclude Include="LoginCommand.h" />
     <ClInclude Include="PasswordHasher.h" />
@@ -167,6 +173,7 @@
     <ClInclude Include="TextValidator.h" />
     <ClInclude Include="User.h" />
     <ClInclude Include="UserCredentialsValidator.h" />
+    <ClInclude Include="UserRepository.h" />
     <ClInclude Include="UserVisitor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
