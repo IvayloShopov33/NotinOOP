@@ -124,8 +124,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Admin.cpp" />
+    <ClCompile Include="BonusDiscount.cpp" />
+    <ClCompile Include="BrandDiscount.cpp" />
     <ClCompile Include="Buyer.cpp" />
     <ClCompile Include="CommandParseException.cpp" />
+    <ClCompile Include="Discount.cpp" />
+    <ClCompile Include="DiscountValidator.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Fragrance.cpp" />
     <ClCompile Include="FragranceValidator.cpp" />
@@ -141,9 +145,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Admin.h" />
+    <ClInclude Include="BonusDiscount.h" />
+    <ClInclude Include="BrandDiscount.h" />
     <ClInclude Include="Buyer.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="CommandParseException.h" />
+    <ClInclude Include="Discount.h" />
+    <ClInclude Include="DiscountValidator.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Fragrance.h" />
     <ClInclude Include="FragranceValidator.h" />

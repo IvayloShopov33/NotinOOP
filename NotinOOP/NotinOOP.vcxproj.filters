@@ -43,6 +43,12 @@
     <Filter Include="Source Files\Users">
       <UniqueIdentifier>{2c4b3658-b7bc-49c2-b0d7-e2821cea7398}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Discounts">
+      <UniqueIdentifier>{17e954b6-eb1b-4cdd-bc82-92442fb4a157}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Discounts">
+      <UniqueIdentifier>{58bfbd2d-9658-4497-9295-25d5ac91e9a2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="StartUp.cpp">
@@ -89,6 +95,18 @@
     </ClCompile>
     <ClCompile Include="Fragrance.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DiscountValidator.cpp">
+      <Filter>Source Files\Validators</Filter>
+    </ClCompile>
+    <ClCompile Include="Discount.cpp">
+      <Filter>Source Files\Discounts</Filter>
+    </ClCompile>
+    <ClCompile Include="BonusDiscount.cpp">
+      <Filter>Source Files\Discounts</Filter>
+    </ClCompile>
+    <ClCompile Include="BrandDiscount.cpp">
+      <Filter>Source Files\Discounts</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -139,6 +157,18 @@
     </ClInclude>
     <ClInclude Include="Fragrance.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DiscountValidator.h">
+      <Filter>Header Files\Validators</Filter>
+    </ClInclude>
+    <ClInclude Include="Discount.h">
+      <Filter>Header Files\Discounts</Filter>
+    </ClInclude>
+    <ClInclude Include="BonusDiscount.h">
+      <Filter>Header Files\Discounts</Filter>
+    </ClInclude>
+    <ClInclude Include="BrandDiscount.h">
+      <Filter>Header Files\Discounts</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
