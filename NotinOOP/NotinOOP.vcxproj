@@ -135,6 +135,8 @@
     <ClCompile Include="FragranceValidator.cpp" />
     <ClCompile Include="LoginCommand.cpp" />
     <ClCompile Include="PasswordHasher.cpp" />
+    <ClCompile Include="Purchase.cpp" />
+    <ClCompile Include="PurchaseValidator.cpp" />
     <ClCompile Include="Review.cpp" />
     <ClCompile Include="ReviewValidator.cpp" />
     <ClCompile Include="SaveToFileVisitor.cpp" />
@@ -157,6 +159,8 @@
     <ClInclude Include="FragranceValidator.h" />
     <ClInclude Include="LoginCommand.h" />
     <ClInclude Include="PasswordHasher.h" />
+    <ClInclude Include="Purchase.h" />
+    <ClInclude Include="PurchaseValidator.h" />
     <ClInclude Include="Review.h" />
     <ClInclude Include="ReviewValidator.h" />
     <ClInclude Include="SaveToFileVisitor.h" />

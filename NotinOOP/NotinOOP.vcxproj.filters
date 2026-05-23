@@ -108,6 +108,12 @@
     <ClCompile Include="BrandDiscount.cpp">
       <Filter>Source Files\Discounts</Filter>
     </ClCompile>
+    <ClCompile Include="PurchaseValidator.cpp">
+      <Filter>Source Files\Validators</Filter>
+    </ClCompile>
+    <ClCompile Include="Purchase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -169,6 +175,12 @@
     </ClInclude>
     <ClInclude Include="BrandDiscount.h">
       <Filter>Header Files\Discounts</Filter>
+    </ClInclude>
+    <ClInclude Include="PurchaseValidator.h">
+      <Filter>Header Files\Validators</Filter>
+    </ClInclude>
+    <ClInclude Include="Purchase.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
