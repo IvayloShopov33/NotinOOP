@@ -137,6 +137,7 @@
     <ClCompile Include="FragranceRepository.cpp" />
     <ClCompile Include="FragranceValidator.cpp" />
     <ClCompile Include="LoginCommand.cpp" />
+    <ClCompile Include="NotinoOOP.cpp" />
     <ClCompile Include="PasswordHasher.cpp" />
     <ClCompile Include="Purchase.cpp" />
     <ClCompile Include="PurchaseValidator.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="FragranceRepository.h" />
     <ClInclude Include="FragranceValidator.h" />
     <ClInclude Include="LoginCommand.h" />
+    <ClInclude Include="NotinoOOP.h" />
     <ClInclude Include="PasswordHasher.h" />
     <ClInclude Include="Purchase.h" />
     <ClInclude Include="PurchaseValidator.h" />

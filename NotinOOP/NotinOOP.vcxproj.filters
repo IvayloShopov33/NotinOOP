@@ -129,6 +129,9 @@
     <ClCompile Include="UserRepository.cpp">
       <Filter>Source Files\Repositories</Filter>
     </ClCompile>
+    <ClCompile Include="NotinoOOP.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -205,6 +208,9 @@
     </ClInclude>
     <ClInclude Include="UserRepository.h">
       <Filter>Header Files\Repositories</Filter>
+    </ClInclude>
+    <ClInclude Include="NotinoOOP.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
