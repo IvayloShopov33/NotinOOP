@@ -38,6 +38,7 @@ public:
 
 	void addFragranceToCatalog(std::shared_ptr<Fragrance> fragrance);
 	bool removeFragranceFromCatalog(int fragranceId);
+	std::shared_ptr<Fragrance> findFragranceByName(const std::string& name) const;
 	void addDiscountToSystem(std::shared_ptr<Discount> discount);
 
 	void showCatalog(std::ostream& os = std::cout) const;

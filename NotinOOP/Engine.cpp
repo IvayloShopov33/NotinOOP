@@ -15,6 +15,13 @@
 #include "DeliverCommand.h"
 #include "RemoveReviewCommand.h"
 
+#include "AddBalanceCommand.h"
+#include "AddToCartCommand.h"
+#include "RemoveFromCartCommand.h"
+#include "AddToWishlistCommand.h"
+#include "RemoveFromWishlistCommand.h"
+#include "ViewCartCommand.h"
+
 Engine::Engine() : isRunning(false) {}
 
 NotinoOOP& Engine::getSystem() {
@@ -133,6 +140,59 @@ std::unique_ptr<Command> Engine::parseCommand(const std::string& input) {
 		int reviewId = std::stoi(args[2]);
 
         return std::make_unique<RemoveReviewCommand>(fragranceId, reviewId);
+    }
+    else if (action == "add-to-balance") {
+        if (args.size() < 2) {
+            throw CommandParseException("Usage: add-to-balance <amount>");
+        }
+
+		double amount = std::stod(args[1]);
+
+        return std::make_unique<AddBalanceCommand>(amount);
+    }
+    else if (action == "add-to-cart") {
+        if (args.size() < 2) {
+            throw CommandParseException("Usage: add-to-cart <fragrance-name>");
+        }
+
+		std::string fragranceName = args[1];
+
+        return std::make_unique<AddToCartCommand>(fragranceName);
+    }
+    else if (action == "remove-from-cart")
+    {
+        if (args.size() < 2)
+        {
+            throw CommandParseException("Usage: remove-from-cart <fragrance-name>");
+        }
+
+		std::string fragranceName = args[1];
+
+		return std::make_unique<RemoveFromCartCommand>(fragranceName);
+    }
+    else if (action == "add-to-wishlist")
+    {
+        if (args.size() < 2) {
+            throw CommandParseException("Usage: add-to-wishlist <fragrance-name>");
+        }
+
+        std::string fragranceName = args[1];
+
+        return std::make_unique<AddToWishlistCommand>(fragranceName);
+    }
+    else if (action == "remove-from-wishlist")
+    {
+        if (args.size() < 2)
+        {
+            throw CommandParseException("Usage: remove-from-wishlist <fragrance-name>");
+        }
+
+        std::string fragranceName = args[1];
+
+        return std::make_unique<RemoveFromWishlistCommand>(fragranceName);
+    }
+    else if (action == "view-cart") {
+        return std::make_unique<ViewCartCommand>();
     }
 	// TODO: Add more commands here (e.g., register, add, delete, etc.)
     else if (action == "end") {

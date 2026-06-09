@@ -11,4 +11,5 @@ public:
 
     // Double Dispatch implementation for the Visitor pattern
     void accept(UserVisitor& visitor) const override;
+    void acceptModifier(UserModifierVisitor& visitor) override;
 };

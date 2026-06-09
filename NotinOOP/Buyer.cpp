@@ -1,7 +1,9 @@
 #include <stdexcept>
 
 #include "Buyer.h"
+#include "Fragrance.h"
 #include "UserVisitor.h"
+#include "UserModifierVisitor.h"
 
 Buyer::Buyer(const std::string& username, const std::string& password, double balance)
     : User(username, password), balance(balance) {
@@ -20,6 +22,10 @@ Buyer::Buyer(int id, const std::string& username, const std::string& password, d
 bool Buyer::isAdmin() const { return false; }
 
 void Buyer::accept(UserVisitor& visitor) const {
+    visitor.visit(*this);
+}
+
+void Buyer::acceptModifier(UserModifierVisitor& visitor) {
     visitor.visit(*this);
 }
 
@@ -51,12 +57,40 @@ void Buyer::addToCart(std::weak_ptr<Fragrance> fragrance) {
     cart.push_back(fragrance);
 }
 
-void Buyer::addToWishlist(std::weak_ptr<Fragrance> fragrance) {
-    wishlist.push_back(fragrance);
+bool Buyer::removeFromCart(int fragranceId) {
+    for (auto it = cart.begin(); it != cart.end(); it++) {
+        if (auto fragPtr = it->lock()) {
+            if (fragPtr->getId() == fragranceId) {
+                cart.erase(it);
+
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 void Buyer::clearCart() {
     cart.clear();
+}
+
+void Buyer::addToWishlist(std::weak_ptr<Fragrance> fragrance) {
+    wishlist.push_back(fragrance);
+}
+
+bool Buyer::removeFromWishlist(int fragranceId) {
+    for (auto it = wishlist.begin(); it != wishlist.end(); it++) {
+        if (auto fragPtr = it->lock()) {
+            if (fragPtr->getId() == fragranceId) {
+                wishlist.erase(it);
+
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 int Buyer::getRemovedReviewsCount() const {

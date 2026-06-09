@@ -3,6 +3,7 @@
 
 // Visitor's preliminary declaration
 class UserVisitor;
+class UserModifierVisitor;
 
 class User {
 protected:
@@ -21,6 +22,7 @@ public:
 
 	// Entry point for the Visitor pattern
     virtual void accept(UserVisitor& visitor) const = 0;
+    virtual void acceptModifier(UserModifierVisitor& visitor) = 0;
 
     int getId() const;
     const std::string& getUsername() const;

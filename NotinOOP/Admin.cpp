@@ -1,5 +1,6 @@
 #include "Admin.h"
 #include "UserVisitor.h"
+#include "UserModifierVisitor.h"
 
 Admin::Admin(const std::string& username, const std::string& password)
     : User(username, password) {}
@@ -10,5 +11,9 @@ Admin::Admin(int id, const std::string& username, const std::string& password)
 bool Admin::isAdmin() const { return true; }
 
 void Admin::accept(UserVisitor& visitor) const {
+    visitor.visit(*this);
+}
+
+void Admin::acceptModifier(UserModifierVisitor& visitor) {
     visitor.visit(*this);
 }

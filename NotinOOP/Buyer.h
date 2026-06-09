@@ -25,14 +25,18 @@ public:
 
     // Double Dispatch implementation for the Visitor pattern
     void accept(UserVisitor& visitor) const override;
+    void acceptModifier(UserModifierVisitor& visitor) override;
 
     double getBalance() const;
     void addToBalance(double amount);
     void deductBalance(double amount);
 
     void addToCart(std::weak_ptr<Fragrance> fragrance);
-    void addToWishlist(std::weak_ptr<Fragrance> fragrance);
+    bool removeFromCart(int fragranceId);
     void clearCart();
+
+    void addToWishlist(std::weak_ptr<Fragrance> fragrance);
+    bool removeFromWishlist(int fragranceId);
 
     int getRemovedReviewsCount() const;
     void incrementRemovedReviews();

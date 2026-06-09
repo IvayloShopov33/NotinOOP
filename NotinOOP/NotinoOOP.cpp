@@ -349,6 +349,16 @@ bool NotinoOOP::removeFragranceFromCatalog(int fragranceId) {
     return fragranceRepo.removeFragrance(fragranceId);
 }
 
+std::shared_ptr<Fragrance> NotinoOOP::findFragranceByName(const std::string& name) const {
+    for (const auto& frag : fragranceRepo.getAll()) {
+        if (frag && frag->getName() == name) {
+            return frag;
+        }
+    }
+
+    return nullptr;
+}
+
 void NotinoOOP::addDiscountToSystem(std::shared_ptr<Discount> discount) {
     discountRepo.addDiscount(std::move(discount));
 }

@@ -174,6 +174,27 @@
     <ClCompile Include="Review.cpp">
       <Filter>Source Files\Models</Filter>
     </ClCompile>
+    <ClCompile Include="BuyerActionVisitor.cpp">
+      <Filter>Source Files\Visitors</Filter>
+    </ClCompile>
+    <ClCompile Include="AddBalanceCommand.cpp">
+      <Filter>Source Files\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="AddToCartCommand.cpp">
+      <Filter>Source Files\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="RemoveFromCartCommand.cpp">
+      <Filter>Source Files\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="AddToWishlistCommand.cpp">
+      <Filter>Source Files\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="RemoveFromWishlistCommand.cpp">
+      <Filter>Source Files\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="ViewCartCommand.cpp">
+      <Filter>Source Files\Commands</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -283,6 +304,30 @@
     </ClInclude>
     <ClInclude Include="Review.h">
       <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="UserModifierVisitor.h">
+      <Filter>Header Files\Visitors</Filter>
+    </ClInclude>
+    <ClInclude Include="BuyerActionVisitor.h">
+      <Filter>Header Files\Visitors</Filter>
+    </ClInclude>
+    <ClInclude Include="AddBalanceCommand.h">
+      <Filter>Header Files\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="AddToCartCommand.h">
+      <Filter>Header Files\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="RemoveFromCartCommand.h">
+      <Filter>Header Files\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="AddToWishlistCommand.h">
+      <Filter>Header Files\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="RemoveFromWishlistCommand.h">
+      <Filter>Header Files\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewCartCommand.h">
+      <Filter>Header Files\Commands</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -124,12 +124,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AddBalanceCommand.cpp" />
     <ClCompile Include="AddQuantityCommand.cpp" />
+    <ClCompile Include="AddToCartCommand.cpp" />
+    <ClCompile Include="AddToWishlistCommand.cpp" />
     <ClCompile Include="Admin.cpp" />
     <ClCompile Include="BlockUserCommand.cpp" />
     <ClCompile Include="BonusDiscount.cpp" />
     <ClCompile Include="BrandDiscount.cpp" />
     <ClCompile Include="Buyer.cpp" />
+    <ClCompile Include="BuyerActionVisitor.cpp" />
     <ClCompile Include="CommandParseException.cpp" />
     <ClCompile Include="CreateFragranceCommand.cpp" />
     <ClCompile Include="DeliverCommand.cpp" />
@@ -150,6 +154,8 @@
     <ClCompile Include="Purchase.cpp" />
     <ClCompile Include="PurchaseValidator.cpp" />
     <ClCompile Include="RegisterCommand.cpp" />
+    <ClCompile Include="RemoveFromCartCommand.cpp" />
+    <ClCompile Include="RemoveFromWishlistCommand.cpp" />
     <ClCompile Include="RemoveReviewCommand.cpp" />
     <ClCompile Include="Review.cpp" />
     <ClCompile Include="ReviewValidator.cpp" />
@@ -159,14 +165,19 @@
     <ClCompile Include="User.cpp" />
     <ClCompile Include="UserCredentialsValidator.cpp" />
     <ClCompile Include="UserRepository.cpp" />
+    <ClCompile Include="ViewCartCommand.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AddBalanceCommand.h" />
     <ClInclude Include="AddQuantityCommand.h" />
+    <ClInclude Include="AddToCartCommand.h" />
+    <ClInclude Include="AddToWishlistCommand.h" />
     <ClInclude Include="Admin.h" />
     <ClInclude Include="BlockUserCommand.h" />
     <ClInclude Include="BonusDiscount.h" />
     <ClInclude Include="BrandDiscount.h" />
     <ClInclude Include="Buyer.h" />
+    <ClInclude Include="BuyerActionVisitor.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="CommandParseException.h" />
     <ClInclude Include="CreateFragranceCommand.h" />
@@ -188,6 +199,8 @@
     <ClInclude Include="Purchase.h" />
     <ClInclude Include="PurchaseValidator.h" />
     <ClInclude Include="RegisterCommand.h" />
+    <ClInclude Include="RemoveFromCartCommand.h" />
+    <ClInclude Include="RemoveFromWishlistCommand.h" />
     <ClInclude Include="RemoveReviewCommand.h" />
     <ClInclude Include="Review.h" />
     <ClInclude Include="ReviewValidator.h" />
@@ -195,8 +208,10 @@
     <ClInclude Include="TextValidator.h" />
     <ClInclude Include="User.h" />
     <ClInclude Include="UserCredentialsValidator.h" />
+    <ClInclude Include="UserModifierVisitor.h" />
     <ClInclude Include="UserRepository.h" />
     <ClInclude Include="UserVisitor.h" />
+    <ClInclude Include="ViewCartCommand.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
