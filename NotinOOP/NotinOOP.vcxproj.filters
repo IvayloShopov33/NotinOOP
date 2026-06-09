@@ -55,6 +55,12 @@
     <Filter Include="Source Files\Repositories">
       <UniqueIdentifier>{a217a0db-ec4f-4c5a-a3b0-fa2045a2b4fd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Visitors">
+      <UniqueIdentifier>{024a2548-1563-41c1-9d68-b95c9d5728fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Visitors">
+      <UniqueIdentifier>{8cfc1fc7-b85e-4dd7-a86e-35d4a68e8bbd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="StartUp.cpp">
@@ -79,9 +85,6 @@
       <Filter>Source Files\Users</Filter>
     </ClCompile>
     <ClCompile Include="Admin.cpp">
-      <Filter>Source Files\Users</Filter>
-    </ClCompile>
-    <ClCompile Include="SaveToFileVisitor.cpp">
       <Filter>Source Files\Users</Filter>
     </ClCompile>
     <ClCompile Include="PasswordHasher.cpp">
@@ -132,6 +135,24 @@
     <ClCompile Include="NotinoOOP.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="EndCommand.cpp">
+      <Filter>Source Files\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="RegisterCommand.cpp">
+      <Filter>Source Files\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="LogoutCommand.cpp">
+      <Filter>Source Files\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="SaveToFileVisitor.cpp">
+      <Filter>Source Files\Visitors</Filter>
+    </ClCompile>
+    <ClCompile Include="HelpVisitor.cpp">
+      <Filter>Source Files\Visitors</Filter>
+    </ClCompile>
+    <ClCompile Include="HelpCommand.cpp">
+      <Filter>Source Files\Commands</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -152,16 +173,10 @@
     <ClInclude Include="User.h">
       <Filter>Header Files\Users</Filter>
     </ClInclude>
-    <ClInclude Include="UserVisitor.h">
-      <Filter>Header Files\Users</Filter>
-    </ClInclude>
     <ClInclude Include="Buyer.h">
       <Filter>Header Files\Users</Filter>
     </ClInclude>
     <ClInclude Include="Admin.h">
-      <Filter>Header Files\Users</Filter>
-    </ClInclude>
-    <ClInclude Include="SaveToFileVisitor.h">
       <Filter>Header Files\Users</Filter>
     </ClInclude>
     <ClInclude Include="PasswordHasher.h">
@@ -211,6 +226,27 @@
     </ClInclude>
     <ClInclude Include="NotinoOOP.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EndCommand.h">
+      <Filter>Header Files\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="RegisterCommand.h">
+      <Filter>Header Files\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="LogoutCommand.h">
+      <Filter>Header Files\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="SaveToFileVisitor.h">
+      <Filter>Header Files\Visitors</Filter>
+    </ClInclude>
+    <ClInclude Include="UserVisitor.h">
+      <Filter>Header Files\Visitors</Filter>
+    </ClInclude>
+    <ClInclude Include="HelpVisitor.h">
+      <Filter>Header Files\Visitors</Filter>
+    </ClInclude>
+    <ClInclude Include="HelpCommand.h">
+      <Filter>Header Files\Commands</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

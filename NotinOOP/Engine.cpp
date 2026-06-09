@@ -2,10 +2,18 @@
 #include <vector>
 
 #include "Engine.h"
+#include "RegisterCommand.h"
 #include "LoginCommand.h"
+#include "LogoutCommand.h"
+#include "EndCommand.h"
+#include "HelpCommand.h"
 #include "CommandParseException.h"
 
 Engine::Engine() : isRunning(false) {}
+
+NotinoOOP& Engine::getSystem() {
+    return system;
+}
 
 void Engine::stop() {
     isRunning = false;
@@ -43,7 +51,7 @@ std::unique_ptr<Command> Engine::parseCommand(const std::string& input) {
 
     if (action == "login") {
         if (args.size() < 3) {
-			throw CommandParseException("Login command requires username and password!");
+			throw CommandParseException("Login command requires username and password! Usage: login <username> <password>");
         }
 
         std::string username = args[1];
@@ -51,17 +59,33 @@ std::unique_ptr<Command> Engine::parseCommand(const std::string& input) {
 
         return std::make_unique<LoginCommand>(username, password);
     }
+    else if (action == "register") {
+        if (args.size() < 3) {
+            throw CommandParseException("Register command requires username and password! Usage: register <username> <password>");
+        }
+
+        std::string username = args[1];
+        std::string password = args[2];
+
+        return std::make_unique<RegisterCommand>(username, password);
+    }
+    else if (action == "logout") {
+        return std::make_unique<LogoutCommand>();
+    }
+    else if (action == "help") {
+        return std::make_unique<HelpCommand>();
+    }
 	// TODO: Add more commands here (e.g., register, add, delete, etc.)
     else if (action == "end") {
-        stop();
-        // The save logic itself can be in EndCommand or NotinOOP::saveData() can be called here
-        return nullptr;
+        return std::make_unique<EndCommand>();
     }
 
 	throw CommandParseException("Unknown command: " + action);
 }
 
 void Engine::run() {
+	system.loadData();
+
     isRunning = true;
     std::string inputLine;
 
@@ -90,4 +114,6 @@ void Engine::run() {
             std::cout << "Error: " << e.what() << "\n";
         }
     }
+
+	system.saveData();
 }
