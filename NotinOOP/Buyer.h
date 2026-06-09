@@ -44,6 +44,6 @@ public:
     void addPurchase(std::shared_ptr<Purchase> purchase);
     const std::vector<std::shared_ptr<Purchase>>& getPurchases() const;
 
-    void applyReviewPenalty();
-    bool shouldBeBlocked() const;
+    void applyReviewPenalty() override;
+    bool shouldBeBlocked() const override;
 };

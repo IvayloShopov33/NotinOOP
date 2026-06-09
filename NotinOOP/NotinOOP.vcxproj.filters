@@ -61,6 +61,12 @@
     <Filter Include="Source Files\Visitors">
       <UniqueIdentifier>{8cfc1fc7-b85e-4dd7-a86e-35d4a68e8bbd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Models">
+      <UniqueIdentifier>{4fc3f1f3-f996-4977-8c55-38648177d965}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Models">
+      <UniqueIdentifier>{84f74a57-b4ae-4b6c-a9ae-ff89f623db94}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="StartUp.cpp">
@@ -90,9 +96,6 @@
     <ClCompile Include="PasswordHasher.cpp">
       <Filter>Source Files\Validators</Filter>
     </ClCompile>
-    <ClCompile Include="Review.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="TextValidator.cpp">
       <Filter>Source Files\Validators</Filter>
     </ClCompile>
@@ -101,9 +104,6 @@
     </ClCompile>
     <ClCompile Include="FragranceValidator.cpp">
       <Filter>Source Files\Validators</Filter>
-    </ClCompile>
-    <ClCompile Include="Fragrance.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DiscountValidator.cpp">
       <Filter>Source Files\Validators</Filter>
@@ -120,9 +120,6 @@
     <ClCompile Include="PurchaseValidator.cpp">
       <Filter>Source Files\Validators</Filter>
     </ClCompile>
-    <ClCompile Include="Purchase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DiscountRepository.cpp">
       <Filter>Source Files\Repositories</Filter>
     </ClCompile>
@@ -131,9 +128,6 @@
     </ClCompile>
     <ClCompile Include="UserRepository.cpp">
       <Filter>Source Files\Repositories</Filter>
-    </ClCompile>
-    <ClCompile Include="NotinoOOP.cpp">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="EndCommand.cpp">
       <Filter>Source Files\Commands</Filter>
@@ -168,6 +162,18 @@
     <ClCompile Include="RemoveReviewCommand.cpp">
       <Filter>Source Files\Commands</Filter>
     </ClCompile>
+    <ClCompile Include="Fragrance.cpp">
+      <Filter>Source Files\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="NotinoOOP.cpp">
+      <Filter>Source Files\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Purchase.cpp">
+      <Filter>Source Files\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="Review.cpp">
+      <Filter>Source Files\Models</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -197,9 +203,6 @@
     <ClInclude Include="PasswordHasher.h">
       <Filter>Header Files\Validators</Filter>
     </ClInclude>
-    <ClInclude Include="Review.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="TextValidator.h">
       <Filter>Header Files\Validators</Filter>
     </ClInclude>
@@ -208,9 +211,6 @@
     </ClInclude>
     <ClInclude Include="FragranceValidator.h">
       <Filter>Header Files\Validators</Filter>
-    </ClInclude>
-    <ClInclude Include="Fragrance.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DiscountValidator.h">
       <Filter>Header Files\Validators</Filter>
@@ -227,9 +227,6 @@
     <ClInclude Include="PurchaseValidator.h">
       <Filter>Header Files\Validators</Filter>
     </ClInclude>
-    <ClInclude Include="Purchase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DiscountRepository.h">
       <Filter>Header Files\Repositories</Filter>
     </ClInclude>
@@ -238,9 +235,6 @@
     </ClInclude>
     <ClInclude Include="UserRepository.h">
       <Filter>Header Files\Repositories</Filter>
-    </ClInclude>
-    <ClInclude Include="NotinoOOP.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="EndCommand.h">
       <Filter>Header Files\Commands</Filter>
@@ -277,6 +271,18 @@
     </ClInclude>
     <ClInclude Include="RemoveReviewCommand.h">
       <Filter>Header Files\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Fragrance.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="NotinoOOP.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Purchase.h">
+      <Filter>Header Files\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="Review.h">
+      <Filter>Header Files\Models</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

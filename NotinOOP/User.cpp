@@ -38,3 +38,12 @@ const std::string& User::getUsername() const {
 const std::string& User::getPassword() const {
     return password;
 }
+
+void User::applyReviewPenalty() {
+    // Base users have no penalty, but this can be overridden in derived classes
+}
+
+bool User::shouldBeBlocked() const {
+    // Base users are never blocked, but this can be overridden in derived classes
+    return false;
+}

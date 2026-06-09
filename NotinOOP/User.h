@@ -26,5 +26,8 @@ public:
     const std::string& getUsername() const;
     const std::string& getPassword() const;
 
+    virtual void applyReviewPenalty();
+    virtual bool shouldBeBlocked() const;
+
     virtual ~User() = default;
 };

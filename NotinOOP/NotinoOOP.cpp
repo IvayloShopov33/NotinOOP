@@ -522,17 +522,13 @@ bool NotinoOOP::removeReviewAndPenalize(int fragranceId, int reviewId) {
         if (user && user->getId() == targetUserId) {
 
             if (!user->isAdmin()) {
+                user->applyReviewPenalty();
 
-				// Using static_pointer_cast here is safe because we know that the user is not an admin (we checked it with isAdmin() method) and the only other type of user in the system is Buyer.
-                auto buyer = std::static_pointer_cast<Buyer>(user);
-
-                buyer->applyReviewPenalty();
-
-                if (buyer->shouldBeBlocked()) {
-                    std::cout << "The user '" << buyer->getUsername()
+                if (user->shouldBeBlocked()) {
+                    std::cout << "The user '" << user->getUsername()
                         << "' has 7+ removed reviews and is automatically blocked!\n";
 
-                    blockUser(buyer->getUsername());
+                    blockUser(user->getUsername());
                 }
             }
 
