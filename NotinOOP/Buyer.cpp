@@ -17,6 +17,8 @@ Buyer::Buyer(int id, const std::string& username, const std::string& password, d
     }
 }
 
+bool Buyer::isAdmin() const { return false; }
+
 void Buyer::accept(UserVisitor& visitor) const {
     visitor.visit(*this);
 }
@@ -57,6 +59,22 @@ void Buyer::clearCart() {
     cart.clear();
 }
 
+int Buyer::getRemovedReviewsCount() const {
+    return removedReviewsCount;
+}
+
+void Buyer::incrementRemovedReviews() {
+    removedReviewsCount++;
+}
+
+void Buyer::setRemovedReviewsCount(int count) {
+    if (count < 0) {
+        throw std::invalid_argument("The count of removed reviews cannot be negative.");
+    }
+
+    removedReviewsCount = count;
+}
+
 const std::vector<std::weak_ptr<Fragrance>>& Buyer::getCart() const {
     return cart;
 }
@@ -72,3 +90,7 @@ void Buyer::addPurchase(std::shared_ptr<Purchase> purchase) {
 const std::vector<std::shared_ptr<Purchase>>& Buyer::getPurchases() const {
     return purchases;
 }
+
+void Buyer::applyReviewPenalty() { removedReviewsCount++; }
+
+bool Buyer::shouldBeBlocked() const { return removedReviewsCount >= 7; }

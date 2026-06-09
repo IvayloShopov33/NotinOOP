@@ -44,4 +44,9 @@ public:
 	bool checkout(const std::vector<int>& fragranceIds, int discountId = -1);
 	void showCurrentUserPurchaseHistory(std::ostream& os = std::cout) const;
 	void showAllPurchasesInSystem(std::ostream& os = std::cout) const;
+
+	bool blockUser(const std::string& username);
+	void addQuantityToFragrance(const std::string& fragranceName, int quantity);
+	bool deliverPurchase(int purchaseId);
+	bool removeReviewAndPenalize(int fragranceId, int reviewId);
 };

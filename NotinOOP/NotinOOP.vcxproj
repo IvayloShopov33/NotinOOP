@@ -124,11 +124,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AddQuantityCommand.cpp" />
     <ClCompile Include="Admin.cpp" />
+    <ClCompile Include="BlockUserCommand.cpp" />
     <ClCompile Include="BonusDiscount.cpp" />
     <ClCompile Include="BrandDiscount.cpp" />
     <ClCompile Include="Buyer.cpp" />
     <ClCompile Include="CommandParseException.cpp" />
+    <ClCompile Include="CreateFragranceCommand.cpp" />
+    <ClCompile Include="DeliverCommand.cpp" />
     <ClCompile Include="Discount.cpp" />
     <ClCompile Include="DiscountRepository.cpp" />
     <ClCompile Include="DiscountValidator.cpp" />
@@ -146,6 +150,7 @@
     <ClCompile Include="Purchase.cpp" />
     <ClCompile Include="PurchaseValidator.cpp" />
     <ClCompile Include="RegisterCommand.cpp" />
+    <ClCompile Include="RemoveReviewCommand.cpp" />
     <ClCompile Include="Review.cpp" />
     <ClCompile Include="ReviewValidator.cpp" />
     <ClCompile Include="SaveToFileVisitor.cpp" />
@@ -156,12 +161,16 @@
     <ClCompile Include="UserRepository.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AddQuantityCommand.h" />
     <ClInclude Include="Admin.h" />
+    <ClInclude Include="BlockUserCommand.h" />
     <ClInclude Include="BonusDiscount.h" />
     <ClInclude Include="BrandDiscount.h" />
     <ClInclude Include="Buyer.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="CommandParseException.h" />
+    <ClInclude Include="CreateFragranceCommand.h" />
+    <ClInclude Include="DeliverCommand.h" />
     <ClInclude Include="Discount.h" />
     <ClInclude Include="DiscountRepository.h" />
     <ClInclude Include="DiscountValidator.h" />
@@ -179,6 +188,7 @@
     <ClInclude Include="Purchase.h" />
     <ClInclude Include="PurchaseValidator.h" />
     <ClInclude Include="RegisterCommand.h" />
+    <ClInclude Include="RemoveReviewCommand.h" />
     <ClInclude Include="Review.h" />
     <ClInclude Include="ReviewValidator.h" />
     <ClInclude Include="SaveToFileVisitor.h" />

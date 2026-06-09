@@ -100,14 +100,18 @@ void NotinoOOP::loadData() {
                 int id;
                 std::string username, password;
                 double balance;
+				int removedReviews;
 
                 inFile >> id;
                 inFile >> username;
                 inFile >> password;
                 inFile >> balance;
+				inFile >> removedReviews;
 
                 if (!inFile.fail()) {
                     auto buyer = std::make_shared<Buyer>(id, username, password, balance);
+					buyer->setRemovedReviewsCount(removedReviews);
+
                     std::string marker;
 
                     // Cart recovery
@@ -442,4 +446,99 @@ void NotinoOOP::showAllPurchasesInSystem(std::ostream& os) const {
     }
 
     os << "---------------------------------------------------\n";
+}
+
+bool NotinoOOP::blockUser(const std::string& username) {
+    auto user = userRepo.findByUsername(username);
+    if (!user) {
+        return false;
+    }
+
+    return userRepo.removeUser(user->getId());
+}
+
+// DELIVERY SIMULATION
+void NotinoOOP::addQuantityToFragrance(const std::string& fragranceName, int quantity) {
+    bool found = false;
+
+    for (const auto& frag : fragranceRepo.getAll()) {
+        if (frag && frag->getName() == fragranceName) {
+            frag->addQuantity(quantity);
+            found = true;
+
+            std::cout << "Successfully added " << quantity
+                << " pieces per perfume '" << fragranceName << "'.\n";
+            break;
+        }
+    }
+
+    if (!found) {
+        std::cout << "Perfume with a name '" << fragranceName << "' does not exist in the catalog.\n";
+    }
+}
+
+bool NotinoOOP::deliverPurchase(int purchaseId) {
+    for (auto& purchase : purchases) {
+        if (purchase.getPurchaseId() == purchaseId) {
+            // Only an order that is being processed (PENDING) can be delivered.
+            if (purchase.getStatus() == PurchaseStatus::PENDING) {
+                purchase.setStatus(PurchaseStatus::DELIVERED);
+
+                return true;
+            }
+
+            break; // Found it, but the status is not PENDING.
+        }
+    }
+
+    return false;
+}
+
+bool NotinoOOP::removeReviewAndPenalize(int fragranceId, int reviewId) {
+    auto frag = fragranceRepo.findById(fragranceId);
+    if (!frag) {
+        return false;
+    }
+
+    int targetUserId = -1;
+    for (auto it = reviews.begin(); it != reviews.end(); it++) {
+        if (it->getId() == reviewId) {
+            targetUserId = it->getUserId();
+            reviews.erase(it);
+
+            break;
+        }
+    }
+
+    if (targetUserId == -1) {
+        return false;
+    }
+
+    // Deleting the review from the list of the perfume itself
+    frag->removeReviewById(reviewId);
+
+    // Looking for the author among the users to punish them.
+    for (const auto& user : userRepo.getAll()) {
+        if (user && user->getId() == targetUserId) {
+
+            if (!user->isAdmin()) {
+
+				// Using static_pointer_cast here is safe because we know that the user is not an admin (we checked it with isAdmin() method) and the only other type of user in the system is Buyer.
+                auto buyer = std::static_pointer_cast<Buyer>(user);
+
+                buyer->applyReviewPenalty();
+
+                if (buyer->shouldBeBlocked()) {
+                    std::cout << "The user '" << buyer->getUsername()
+                        << "' has 7+ removed reviews and is automatically blocked!\n";
+
+                    blockUser(buyer->getUsername());
+                }
+            }
+
+            break;
+        }
+    }
+
+    return true;
 }

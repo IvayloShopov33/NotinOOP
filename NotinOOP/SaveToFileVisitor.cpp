@@ -7,7 +7,8 @@ void SaveToFileVisitor::visit(const Buyer& buyer) {
     file << "BUYER " << buyer.getId() << " "
         << buyer.getUsername() << " "
         << buyer.getPassword() << " "
-        << buyer.getBalance() << " ";
+        << buyer.getBalance() << " "
+        << buyer.getRemovedReviewsCount() << " ";
 
     const auto& cart = buyer.getCart();
     file << "CART " << cart.size() << " ";

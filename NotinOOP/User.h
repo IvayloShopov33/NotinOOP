@@ -17,6 +17,8 @@ public:
 
     User(int existingId, const std::string& username, const std::string& password);
 
+    virtual bool isAdmin() const = 0;
+
 	// Entry point for the Visitor pattern
     virtual void accept(UserVisitor& visitor) const = 0;
 

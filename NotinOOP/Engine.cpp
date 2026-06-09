@@ -9,6 +9,12 @@
 #include "HelpCommand.h"
 #include "CommandParseException.h"
 
+#include "BlockUserCommand.h"
+#include "CreateFragranceCommand.h"
+#include "AddQuantityCommand.h"
+#include "DeliverCommand.h"
+#include "RemoveReviewCommand.h"
+
 Engine::Engine() : isRunning(false) {}
 
 NotinoOOP& Engine::getSystem() {
@@ -74,6 +80,59 @@ std::unique_ptr<Command> Engine::parseCommand(const std::string& input) {
     }
     else if (action == "help") {
         return std::make_unique<HelpCommand>();
+    }
+    else if (action == "block-user") {
+        if (args.size() < 2) {
+            throw CommandParseException("Usage: block-user <username>");
+        }
+
+		std::string username = args[1];
+
+        return std::make_unique<BlockUserCommand>(username);
+    }
+    else if (action == "create-fragrance") {
+        // Expecting at least 5 arguments: command, name, brand, price and at least 1 note
+        if (args.size() < 5) {
+            throw CommandParseException("Usage: create-fragrance <name> <brand> <price> <note1> [note2...]");
+        }
+
+		std::string name = args[1];
+		std::string brand = args[2];
+        double price = std::stod(args[3]);
+
+        // Collecting all remaining arguments (from index 4 onwards) into a vector of notes
+        std::vector<std::string> notes(args.begin() + 4, args.end());
+
+        return std::make_unique<CreateFragranceCommand>(name, brand, price, notes);
+    }
+    else if (action == "add-quantity") {
+        if (args.size() < 3) {
+            throw CommandParseException("Usage: add-quantity <fragrance-name> <quantity>");
+        }
+
+		std::string fragranceName = args[1];
+		int quantity = std::stoi(args[2]);
+
+        return std::make_unique<AddQuantityCommand>(fragranceName, quantity);
+    }
+    else if (action == "deliver") {
+        if (args.size() < 2) {
+            throw CommandParseException("Usage: deliver <purchase-id>");
+        }
+
+		int purchaseId = std::stoi(args[1]);
+
+        return std::make_unique<DeliverCommand>(purchaseId);
+    }
+    else if (action == "remove-review") {
+        if (args.size() < 3) {
+            throw CommandParseException("Usage: remove-review <fragrance-id> <review-id>");
+        }
+
+		int fragranceId = std::stoi(args[1]);
+		int reviewId = std::stoi(args[2]);
+
+        return std::make_unique<RemoveReviewCommand>(fragranceId, reviewId);
     }
 	// TODO: Add more commands here (e.g., register, add, delete, etc.)
     else if (action == "end") {
