@@ -14,4 +14,5 @@ public:
     double getBonus() const;
 
     double apply(double originalPrice, const std::string& brand) const override;
+    std::string serialize() const override;
 };

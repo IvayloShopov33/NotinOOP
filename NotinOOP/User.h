@@ -18,7 +18,7 @@ public:
     User(int existingId, const std::string& username, const std::string& password);
 
 	// Entry point for the Visitor pattern
-    virtual void accept(UserVisitor& visitor) = 0;
+    virtual void accept(UserVisitor& visitor) const = 0;
 
     int getId() const;
     const std::string& getUsername() const;

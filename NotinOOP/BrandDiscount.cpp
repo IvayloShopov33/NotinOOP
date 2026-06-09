@@ -29,3 +29,8 @@ double BrandDiscount::apply(double originalPrice, const std::string& brand) cons
 
     return originalPrice;
 }
+
+std::string BrandDiscount::serialize() const {
+    return "BRAND " + std::to_string(discountId) + " " +
+        std::to_string(discountPercent) + " " + brandName;
+}

@@ -13,6 +13,6 @@ public:
     // Constructor that requires an open file when creating the Visitor
     explicit SaveToFileVisitor(std::ofstream& outStream) : file(outStream) {}
 
-    void visit(Buyer& buyer) override;
-    void visit(Admin& admin) override;
+    void visit(const Buyer& buyer) override;
+    void visit(const Admin& admin) override;
 };

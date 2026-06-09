@@ -18,6 +18,7 @@ public:
     double getDiscountPercent() const;
 
     virtual double apply(double originalPrice, const std::string& brand) const;
+    virtual std::string serialize() const = 0;
 
     virtual ~Discount() = default;
 };

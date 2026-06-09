@@ -19,6 +19,7 @@ private:
 	DiscountRepository discountRepo;
 
 	std::vector<Purchase> purchases;
+	std::vector<Review> reviews;
 	std::shared_ptr<User> currentUser;
 
 public:

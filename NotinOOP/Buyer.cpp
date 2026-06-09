@@ -17,7 +17,7 @@ Buyer::Buyer(int id, const std::string& username, const std::string& password, d
     }
 }
 
-void Buyer::accept(UserVisitor& visitor) {
+void Buyer::accept(UserVisitor& visitor) const {
     visitor.visit(*this);
 }
 

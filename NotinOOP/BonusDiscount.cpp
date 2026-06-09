@@ -29,3 +29,8 @@ double BonusDiscount::apply(double originalPrice, const std::string& brand) cons
 
     return std::max(0.0, priceAfterPercentage - bonus);
 }
+
+std::string BonusDiscount::serialize() const {
+    return "BONUS " + std::to_string(discountId) + " " +
+        std::to_string(discountPercent) + " " + std::to_string(bonus);
+}

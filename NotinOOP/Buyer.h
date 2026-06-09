@@ -21,7 +21,7 @@ public:
     Buyer(int id, const std::string& username, const std::string& password, double balance);
 
     // Double Dispatch implementation for the Visitor pattern
-    void accept(UserVisitor& visitor) override;
+    void accept(UserVisitor& visitor) const override;
 
     double getBalance() const;
     void addToBalance(double amount);

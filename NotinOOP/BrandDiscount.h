@@ -15,4 +15,5 @@ public:
     const std::string& getBrandName() const;
 
     double apply(double originalPrice, const std::string& brand) const override;
+    std::string serialize() const override;
 };

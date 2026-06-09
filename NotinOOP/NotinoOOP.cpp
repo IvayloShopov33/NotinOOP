@@ -1,19 +1,281 @@
 #include <algorithm>
 #include <fstream>
+#include <string>
 
 #include "NotinoOOP.h"
 #include "Buyer.h" 
 #include "Admin.h"
+#include "Review.h"
+#include "SaveToFileVisitor.h"
+
+#include "Discount.h"
+#include "BrandDiscount.h"
+#include "BonusDiscount.h"
 
 NotinoOOP::NotinoOOP() : currentUser(nullptr) {}
 
+
 void NotinoOOP::loadData() {
     std::cout << "Loading data from database...\n";
+
+    std::ifstream inFile("system_data.txt");
+    if (!inFile.is_open()) {
+        std::cout << "No existing database found. Starting fresh.\n";
+        return;
+    }
+
+    std::string currentSection = "";
+    std::string token;
+
+    while (inFile >> token) {
+        // Check if the word is a section title (starts with '[' and ends with ']')
+        if (token.front() == '[' && token.back() == ']') {
+            currentSection = token;
+            continue;
+        }
+
+        if (currentSection == "[FRAGRANCES]") {
+            int id = std::stoi(token);
+            std::string brand, name;
+            double price;
+            int quantity;
+            size_t familySize;
+
+            inFile >> brand >> name >> price >> quantity >> familySize;
+
+            if (!inFile.fail()) {
+                std::vector<std::string> families;
+
+                for (size_t i = 0; i < familySize; i++) {
+                    std::string note;
+                    inFile >> note;
+                    families.push_back(note);
+                }
+
+                auto newFrag = std::make_shared<Fragrance>(id, name, brand, price, families, quantity);
+                fragranceRepo.addFragrance(std::move(newFrag));
+            }
+        }
+        else if (currentSection == "[DISCOUNTS]") {
+            std::string discountType = token;
+            int id;
+            double percent;
+
+            inFile >> id;
+            inFile >> percent;
+
+            if (discountType == "BONUS") {
+                double bonusAmount;
+                inFile >> bonusAmount;
+
+                if (!inFile.fail()) {
+                    discountRepo.addDiscount(std::make_shared<BonusDiscount>(id, percent, bonusAmount));
+                }
+            }
+            else if (discountType == "BRAND") {
+                std::string brandName;
+                inFile >> brandName;
+
+                if (!inFile.fail()) {
+                    discountRepo.addDiscount(std::make_shared<BrandDiscount>(id, percent, brandName));
+                }
+            }
+        }
+        else if (currentSection == "[USERS]") {
+            std::string role = token;
+
+            if (role == "ADMIN") {
+                int id;
+                std::string username, password;
+
+                inFile >> id;
+                inFile >> username;
+                inFile >> password;
+
+                if (!inFile.fail()) {
+                    userRepo.addUser(std::make_shared<Admin>(id, username, password));
+                }
+            }
+            else if (role == "BUYER") {
+                int id;
+                std::string username, password;
+                double balance;
+
+                inFile >> id;
+                inFile >> username;
+                inFile >> password;
+                inFile >> balance;
+
+                if (!inFile.fail()) {
+                    auto buyer = std::make_shared<Buyer>(id, username, password, balance);
+                    std::string marker;
+
+                    // Cart recovery
+                    inFile >> marker; // Reading the word "CART"
+                    size_t cartSize;
+                    inFile >> cartSize;
+                    if (!inFile.fail() && marker == "CART") {
+                        for (size_t i = 0; i < cartSize; i++) {
+                            int fragId;
+                            inFile >> fragId;
+
+                            if (fragId != -1) {
+                                auto frag = fragranceRepo.findById(fragId);
+                                if (frag) {
+                                    buyer->addToCart(frag);
+                                }
+                            }
+                        }
+                    }
+
+					// Wishlist recovery
+                    inFile >> marker; // Reading the word "WISH"
+					size_t wishlistSize;
+                    inFile >> wishlistSize;
+                    if (!inFile.fail() && marker == "WISH") {
+                        for (size_t i = 0; i < wishlistSize; i++) {
+                            int fragId;
+                            inFile >> fragId;
+
+                            if (fragId != -1) {
+                                auto frag = fragranceRepo.findById(fragId);
+                                if (frag) {
+                                    buyer->addToWishlist(frag);
+                                }
+                            }
+                        }
+                    }
+
+                    userRepo.addUser(std::move(buyer));
+                }
+            }
+        }
+        else if (currentSection == "[PURCHASES]") {
+            int purchaseId = std::stoi(token);
+            int userId, statusInt, discountId;
+            size_t itemCount;
+
+            inFile >> userId;
+            inFile >> statusInt;
+            inFile >> discountId;
+            inFile >> itemCount;
+
+            if (!inFile.fail()) {
+                std::vector<std::shared_ptr<Fragrance>> purchaseFrags;
+                for (size_t i = 0; i < itemCount; i++) {
+                    int fragId;
+                    inFile >> fragId;
+
+                    auto frag = fragranceRepo.findById(fragId);
+                    if (frag) {
+                        purchaseFrags.push_back(frag);
+                    }
+                }
+
+                auto appliedDiscount = (discountId != -1) ? discountRepo.findById(discountId) : nullptr;
+                Purchase loadedPurchase(purchaseId, userId, purchaseFrags, static_cast<PurchaseStatus>(statusInt), appliedDiscount);
+                purchases.push_back(std::move(loadedPurchase));
+            }
+        }
+        else if (currentSection == "[REVIEWS]") {
+            int id = std::stoi(token);
+            int userId, rating;
+            std::string fragName, comment;
+
+            inFile >> userId;
+            inFile >> rating;
+            inFile >> fragName;
+
+            if (!inFile.fail()) {
+                // Using getline here only for the comment because it contains spaces in the sentence
+                std::getline(inFile, comment);
+
+                // Removing the first blank space that remains before the beginning of the sentence
+                if (!comment.empty() && comment[0] == ' ') {
+                    comment.erase(0, 1);
+                }
+
+                reviews.push_back(Review(id, fragName, userId, comment, rating));
+            }
+        }
+    }
+
+    inFile.close();
     std::cout << "Data loaded successfully.\n";
 }
 
 void NotinoOOP::saveData() const {
     std::cout << "Saving current state to files...\n";
+    std::ofstream outFile("system_data.txt");
+    if (!outFile.is_open()) {
+        std::cout << "The file cannot be opened for writing!\n";
+        return;
+    }
+
+    outFile << "[FRAGRANCES]\n";
+    for (const auto& frag : fragranceRepo.getAll()) {
+        if (frag) {
+            outFile << frag->getId() << " " << frag->getBrand() << " "
+                << frag->getName() << " " << frag->getPrice() << " "
+                << frag->getQuantity() << " ";
+
+            const auto& families = frag->getfragranceFamily();
+            outFile << families.size() << " ";
+            for (const auto& note : families) {
+                outFile << note << " ";
+            }
+
+            outFile << "\n";
+        }
+    }
+
+    outFile << "[DISCOUNTS]\n";
+    for (const auto& disc : discountRepo.getAll()) {
+        if (disc) {
+            outFile << disc->serialize() << "\n";
+        }
+    }
+
+    outFile << "[USERS]\n";
+    SaveToFileVisitor visitor(outFile);
+
+    for (const auto& user : userRepo.getAll()) {
+        if (user) user->accept(visitor);
+    }
+
+    outFile << "[PURCHASES]\n";
+    for (const auto& purchase : purchases) {
+        outFile << purchase.getPurchaseId() << " "
+            << purchase.getUserId() << " "
+            << static_cast<int>(purchase.getStatus()) << " ";
+
+        if (purchase.getAppliedDiscount()) {
+            outFile << purchase.getAppliedDiscount()->getDiscountId() << " ";
+        }
+        else {
+            outFile << "-1 ";
+        }
+
+        const auto& items = purchase.getItems();
+        outFile << items.size() << " ";
+
+        for (const auto& item : items) {
+            if (item.fragrance) outFile << item.fragrance->getId() << " ";
+        }
+
+        outFile << "\n";
+    }
+
+    outFile << "[REVIEWS]\n";
+    for (const auto& review : reviews) {
+        outFile << review.getId() << " "
+            << review.getUserId() << " "
+            << review.getRating() << " "
+            << review.getFragranceName() << " "
+            << review.getComment() << "\n";
+    }
+
+    outFile.close();
     std::cout << "All changes saved successfully. Exit.\n";
 }
 
