@@ -2,6 +2,9 @@
 #include <fstream>
 #include <string>
 
+#include <cstdlib> // std::rand(), std::srand()
+#include <ctime>   // std::time()
+
 #include "NotinoOOP.h"
 #include "Buyer.h" 
 #include "Admin.h"
@@ -201,7 +204,13 @@ void NotinoOOP::loadData() {
                     comment.erase(0, 1);
                 }
 
-                reviews.push_back(Review(id, fragName, userId, comment, rating));
+                Review loadedReview(id, fragName, userId, comment, rating);
+                reviews.push_back(loadedReview);
+
+                auto frag = findFragranceByName(fragName);
+                if (frag) {
+                    frag->addReview(std::move(loadedReview));
+                }
             }
         }
     }
@@ -679,4 +688,147 @@ bool NotinoOOP::cancelPurchase(int purchaseId) {
     std::cout << "Error! Order with ID #" << purchaseId << " was not found.\n";
 
     return false;
+}
+
+void NotinoOOP::recommendFragrances() const {
+    if (!currentUser) {
+        std::cout << "Error! You must be logged in to receive recommendations.\n";
+
+        return;
+    }
+
+    BuyerActionVisitor visitor([this](Buyer& buyer) {
+        const auto& wishlist = buyer.getWishlist();
+
+        if (wishlist.empty()) {
+            std::cout << "Your wishlist is empty. Add your favorite perfumes so we can recommend something to you!\n";
+
+            return;
+        }
+
+        // Collecting all the notes into one large vector
+        std::vector<std::string> allNotes;
+        std::vector<int> wishlistIds;
+
+        for (const auto& weakFrag : wishlist) {
+            if (auto frag = weakFrag.lock()) {
+                wishlistIds.push_back(frag->getId());
+
+                for (const auto& note : frag->getfragranceFamily()) {
+                    allNotes.push_back(note);
+                }
+            }
+        }
+
+        if (allNotes.empty()) {
+            std::cout << "The perfumes on your wishlist do not have assigned fragrance notes.\n";
+
+            return;
+        }
+
+        // Counting notes (with two parallel vectors)
+        std::vector<std::string> uniqueNotes;
+        std::vector<int> counts;
+
+        for (const std::string& currentNote : allNotes) {
+            bool found = false;
+
+            for (size_t i = 0; i < uniqueNotes.size(); i++) {
+                if (uniqueNotes[i] == currentNote) {
+                    counts[i]++;
+                    found = true;
+
+                    break;
+                }
+            }
+
+            // Adding the note if it is seen for the first time
+            if (!found) {
+                uniqueNotes.push_back(currentNote);
+                counts.push_back(1);
+            }
+        }
+
+        // Finding the note with the largest count
+        std::string favoriteNote = "";
+        int maxCount = 0;
+
+        for (size_t i = 0; i < counts.size(); ++i) {
+            if (counts[i] > maxCount) {
+                maxCount = counts[i];
+                favoriteNote = uniqueNotes[i];
+            }
+        }
+
+        // Finding all candidates in the catalog
+        std::vector<std::shared_ptr<Fragrance>> candidates;
+
+        for (const auto& frag : fragranceRepo.getAll()) {
+            if (frag) {
+                // Check if the perfume is already in the wishlist (with a simple cycle)
+                bool isInWishlist = false;
+                for (int id : wishlistIds) {
+                    if (id == frag->getId()) {
+                        isInWishlist = true;
+
+                        break;
+                    }
+                }
+
+                if (!isInWishlist) {
+                    // Check if it contains the favorite note
+                    bool hasFavoriteNote = false;
+                    for (const std::string& n : frag->getfragranceFamily()) {
+                        if (n == favoriteNote) {
+                            hasFavoriteNote = true;
+
+                            break;
+                        }
+                    }
+
+                    if (hasFavoriteNote) {
+                        candidates.push_back(frag);
+                    }
+                }
+            }
+        }
+
+        // Selecting up to 3 random
+        if (candidates.empty()) {
+            std::cout << "Unfortunately, we did not find any other perfumes with a note: '" << favoriteNote << "'.\n";
+
+            return;
+        }
+
+        // Initializing the random number generator according to the clock (guaranteeing they will be different random numbers)
+        std::srand(std::time(0));
+
+        int printedCount = 0;
+
+        std::cout << "\n=== RECOMMENDED FOR YOU ===\n";
+        std::cout << "We noticed you like the note '" << favoriteNote << "'. Here's what we offer you:\n";
+
+        while (printedCount < 3 && !candidates.empty()) {
+
+            // Generating a random number from 0 to (vector size - 1)
+            int randomIndex = std::rand() % candidates.size();
+
+            std::cout << printedCount + 1 << ". "
+                << candidates[randomIndex]->getBrand() << " "
+                << candidates[randomIndex]->getName() << " - "
+                << candidates[randomIndex]->getPrice() << " euro\n";
+
+            // ERASING the perfume from the vector so it doesn't fall off again on the next spin!
+            candidates.erase(candidates.begin() + randomIndex);
+            printedCount++;
+        }
+
+        std::cout << "==========================\n\n";
+        });
+
+    currentUser->acceptModifier(visitor);
+
+    if (!visitor.wasExecuted()) {
+        std::cout << "[Error] Only buyers can receive recommendations.\n";
+    }
 }

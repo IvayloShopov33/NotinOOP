@@ -57,4 +57,6 @@ public:
 
 	bool addReviewToFragrance(const std::string& fragName, int userId, int rating, const std::string& comment);
 	bool cancelPurchase(int purchaseId);
+
+	void recommendFragrances() const;
 };

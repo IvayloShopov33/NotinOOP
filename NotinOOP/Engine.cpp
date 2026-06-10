@@ -27,6 +27,7 @@
 #include "ViewBoughtCommand.h"
 #include "CancelPurchaseCommand.h"
 #include "MakeReviewCommand.h"
+#include "RecommendCommand.h"
 
 Engine::Engine() : isRunning(false) {}
 
@@ -234,7 +235,9 @@ std::unique_ptr<Command> Engine::parseCommand(const std::string& input) {
 
         return std::make_unique<MakeReviewCommand>(fragName, rating, comment);
     }
-	// TODO: Add more commands here (e.g., register, add, delete, etc.)
+    else if (action == "recommend") {
+        return std::make_unique<RecommendCommand>();
+        }
     else if (action == "end") {
         return std::make_unique<EndCommand>();
     }

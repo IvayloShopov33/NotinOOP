@@ -156,6 +156,7 @@
     <ClCompile Include="PasswordHasher.cpp" />
     <ClCompile Include="Purchase.cpp" />
     <ClCompile Include="PurchaseValidator.cpp" />
+    <ClCompile Include="RecommendCommand.cpp" />
     <ClCompile Include="RegisterCommand.cpp" />
     <ClCompile Include="RemoveFromCartCommand.cpp" />
     <ClCompile Include="RemoveFromWishlistCommand.cpp" />
@@ -206,6 +207,7 @@
     <ClInclude Include="PasswordHasher.h" />
     <ClInclude Include="Purchase.h" />
     <ClInclude Include="PurchaseValidator.h" />
+    <ClInclude Include="RecommendCommand.h" />
     <ClInclude Include="RegisterCommand.h" />
     <ClInclude Include="RemoveFromCartCommand.h" />
     <ClInclude Include="RemoveFromWishlistCommand.h" />
