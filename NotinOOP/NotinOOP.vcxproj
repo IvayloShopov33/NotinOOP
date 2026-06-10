@@ -134,6 +134,8 @@
     <ClCompile Include="BrandDiscount.cpp" />
     <ClCompile Include="Buyer.cpp" />
     <ClCompile Include="BuyerActionVisitor.cpp" />
+    <ClCompile Include="CancelPurchaseCommand.cpp" />
+    <ClCompile Include="CheckoutCommand.cpp" />
     <ClCompile Include="CommandParseException.cpp" />
     <ClCompile Include="CreateFragranceCommand.cpp" />
     <ClCompile Include="DeliverCommand.cpp" />
@@ -149,6 +151,7 @@
     <ClCompile Include="HelpVisitor.cpp" />
     <ClCompile Include="LoginCommand.cpp" />
     <ClCompile Include="LogoutCommand.cpp" />
+    <ClCompile Include="MakeReviewCommand.cpp" />
     <ClCompile Include="NotinoOOP.cpp" />
     <ClCompile Include="PasswordHasher.cpp" />
     <ClCompile Include="Purchase.cpp" />
@@ -165,7 +168,9 @@
     <ClCompile Include="User.cpp" />
     <ClCompile Include="UserCredentialsValidator.cpp" />
     <ClCompile Include="UserRepository.cpp" />
+    <ClCompile Include="ViewBoughtCommand.cpp" />
     <ClCompile Include="ViewCartCommand.cpp" />
+    <ClCompile Include="ViewPurchasesCommand.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddBalanceCommand.h" />
@@ -178,6 +183,8 @@
     <ClInclude Include="BrandDiscount.h" />
     <ClInclude Include="Buyer.h" />
     <ClInclude Include="BuyerActionVisitor.h" />
+    <ClInclude Include="CancelPurchaseCommand.h" />
+    <ClInclude Include="CheckoutCommand.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="CommandParseException.h" />
     <ClInclude Include="CreateFragranceCommand.h" />
@@ -194,6 +201,7 @@
     <ClInclude Include="HelpVisitor.h" />
     <ClInclude Include="LoginCommand.h" />
     <ClInclude Include="LogoutCommand.h" />
+    <ClInclude Include="MakeReviewCommand.h" />
     <ClInclude Include="NotinoOOP.h" />
     <ClInclude Include="PasswordHasher.h" />
     <ClInclude Include="Purchase.h" />
@@ -211,7 +219,9 @@
     <ClInclude Include="UserModifierVisitor.h" />
     <ClInclude Include="UserRepository.h" />
     <ClInclude Include="UserVisitor.h" />
+    <ClInclude Include="ViewBoughtCommand.h" />
     <ClInclude Include="ViewCartCommand.h" />
+    <ClInclude Include="ViewPurchasesCommand.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

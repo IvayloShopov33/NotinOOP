@@ -6,7 +6,9 @@
 #include "Buyer.h" 
 #include "Admin.h"
 #include "Review.h"
+
 #include "SaveToFileVisitor.h"
+#include "BuyerActionVisitor.h"
 
 #include "Discount.h"
 #include "BrandDiscount.h"
@@ -380,68 +382,128 @@ void NotinoOOP::showCatalog(std::ostream& os) const {
     os << "---------------------------\n";
 }
 
-bool NotinoOOP::checkout(const std::vector<int>& fragranceIds, int discountId) {
-    if (currentUser == nullptr) {
-        std::cout << "You must be logged in to place an order.\n";
+bool NotinoOOP::checkout() {
+    if (!currentUser) {
+        std::cout << "Error! You must be logged in to complete an order.\n";
+
         return false;
     }
 
-    if (fragranceIds.empty()) {
-        std::cout << "The selected cart is empty.\n";
-        return false;
-    }
+    bool isSuccessful = false;
 
-    std::vector<std::shared_ptr<Fragrance>> selectedFragrances;
-    selectedFragrances.reserve(fragranceIds.size());
+    BuyerActionVisitor visitor([this, &isSuccessful](Buyer& buyer) {
+        const auto& cart = buyer.getCart();
+        if (cart.empty()) {
+            std::cout << "Error! Your cart is empty.\n";
 
-    for (int id : fragranceIds) {
-        auto frag = fragranceRepo.findById(id);
-        if (frag == nullptr) {
-            std::cout << "Perfume with ID #" << id << " does not exist in the catalog. The order has been canceled.\n";
-            return false;
+            return;
         }
 
-        selectedFragrances.push_back(frag);
-    }
+        double originalTotal = 0.0;
+        std::vector<std::shared_ptr<Fragrance>> validFragrances;
 
-    std::shared_ptr<Discount> appliedDiscount = nullptr;
-    if (discountId != -1) {
-        appliedDiscount = discountRepo.findById(discountId);
-        if (appliedDiscount == nullptr) {
-            std::cout << "Voucher with ID #" << discountId << " is not valid. The order continues without discount.\n";
+        for (const auto& weakFrag : cart) {
+            if (auto frag = weakFrag.lock()) {
+                originalTotal += frag->getPrice();
+                validFragrances.push_back(std::move(frag));
+            }
         }
+
+        if (validFragrances.empty()) {
+            std::cout << "Error! The selected products are no longer available.\n";
+            buyer.clearCart();
+
+            return;
+        }
+
+        double finalPrice = originalTotal;
+        std::shared_ptr<Discount> bestDiscount = nullptr;
+
+        for (const auto& discount : discountRepo.getAll()) {
+            if (discount) {
+                double currentDiscountTotal = 0.0;
+
+                for (const auto& frag : validFragrances) {
+                    currentDiscountTotal += discount->apply(frag->getPrice(), frag->getBrand());
+                }
+
+                if (currentDiscountTotal < finalPrice) {
+                    finalPrice = currentDiscountTotal;
+                    bestDiscount = discount;
+                }
+            }
+        }
+
+        if (buyer.getBalance() < finalPrice) {
+            std::cout << "Error! Insufficient stock. Needed " << finalPrice
+                << " euro, and you have " << buyer.getBalance() << " euro.\n";
+
+            return;
+        }
+
+        buyer.deductBalance(finalPrice);
+
+        Purchase newPurchase(buyer.getId(), validFragrances, bestDiscount);
+        purchases.push_back(std::move(newPurchase));
+
+        buyer.clearCart();
+        std::cout << "Successful order! ";
+
+        if (bestDiscount) {
+            std::cout << "A voucher is attached. ";
+        }
+
+        std::cout << "Withheld " << finalPrice << " euro.\n";
+        isSuccessful = true;
+        });
+
+    currentUser->acceptModifier(visitor);
+    if (!visitor.wasExecuted()) {
+        std::cout << "Error! Only buyers can place orders.\n";
     }
 
-    Purchase newPurchase(currentUser->getId(), selectedFragrances, appliedDiscount);
-
-    newPurchase.show(std::cout);
-    purchases.push_back(std::move(newPurchase));
-    std::cout << "The order was successfully registered in the system.\n";
-
-    return true;
+    return isSuccessful;
 }
 
-void NotinoOOP::showCurrentUserPurchaseHistory(std::ostream& os) const {
+void NotinoOOP::showPurchasesFiltered(std::function<bool(const Purchase&)> filter, std::ostream& os) const {
     if (currentUser == nullptr) {
         os << "No user logged in.\n";
+
         return;
     }
 
-    os << "\n--- USER PURCHASE HISTORY: " << currentUser->getUsername() << " ---\n";
-    bool hasPurchases = false;
+    int currentUserId = currentUser->getId();
+    bool foundAny = false;
 
     for (const auto& purchase : purchases) {
-        if (purchase.getUserId() == currentUser->getId()) {
+        // Checking if the order belongs to the current user AND if it matches the filter
+        if (purchase.getUserId() == currentUserId && filter(purchase)) {
             purchase.show(os);
-            hasPurchases = true;
+            foundAny = true;
         }
     }
 
-    if (!hasPurchases) {
-        os << "You have no purchases made yet.\n";
+    if (!foundAny) {
+        os << "No orders found matching the criteria.\n";
     }
 
     os << "----------------------------------------------------------------------\n";
+}
+
+void NotinoOOP::showCurrentUserPurchaseHistory(std::ostream& os) const {
+    os << "\n--- USER ALL PURCHASES HISTORY: " << currentUser->getUsername() << " ---\n";
+
+    showPurchasesFiltered([](const Purchase& p) {
+        return true;
+        }, std::cout);
+}
+
+void NotinoOOP::showCurrentUserDeliveredPurchases(std::ostream& os) const {
+    os << "\n--- USER ALL SUCCESSFUL PURCHASES (DELIVERED) HISTORY: " << currentUser->getUsername() << " --- \n";
+
+    showPurchasesFiltered([](const Purchase& p) {
+        return p.getStatus() == PurchaseStatus::DELIVERED;
+        }, std::cout);
 }
 
 void NotinoOOP::showAllPurchasesInSystem(std::ostream& os) const {
@@ -547,4 +609,74 @@ bool NotinoOOP::removeReviewAndPenalize(int fragranceId, int reviewId) {
     }
 
     return true;
+}
+
+bool NotinoOOP::addReviewToFragrance(const std::string& fragName, int userId, int rating, const std::string& comment) {
+    auto frag = findFragranceByName(fragName);
+    if (!frag) {
+        std::cout << "Error! Perfume with name '" << fragName << "' does not exist in the catalog.\n";
+
+        return false;
+    }
+
+    int newReviewId = reviews.empty() ? 1 : reviews.back().getId() + 1;
+    Review newReview(newReviewId, fragName, userId, comment, rating);
+
+    reviews.push_back(newReview);
+    frag->addReview(newReview);
+
+    return true;
+}
+
+bool NotinoOOP::cancelPurchase(int purchaseId) {
+    if (!currentUser) {
+        return false;
+    }
+
+    for (auto& purchase : purchases) {
+        if (purchase.getPurchaseId() == purchaseId) {
+            if (purchase.getUserId() != currentUser->getId()) {
+                std::cout << "Error! This order does not belong to you.\n";
+
+                return false;
+            }
+
+            if (purchase.getStatus() != PurchaseStatus::PENDING) {
+                std::cout << "Error! You can only cancel orders that are in the process of being processed (PENDING).\n";
+
+                return false;
+            }
+
+            bool isRefunded = false;
+            BuyerActionVisitor visitor([&purchase, &isRefunded](Buyer& buyer) {
+
+                // Returning the money to buyer
+                double refundAmount = purchase.calculateTotalPrice();
+                buyer.addToBalance(refundAmount);
+
+                // Restoring the quantities
+                for (const auto& purchaseItem : purchase.getItems()) {
+                    if (purchaseItem.fragrance) {
+                        purchaseItem.fragrance->addQuantity(1);
+                    }
+                }
+
+                isRefunded = true;
+                });
+
+            currentUser->acceptModifier(visitor);
+            if (isRefunded) {
+                purchase.setStatus(PurchaseStatus::CANCELED);
+
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+    }
+
+    std::cout << "Error! Order with ID #" << purchaseId << " was not found.\n";
+
+    return false;
 }

@@ -1,4 +1,5 @@
 #pragma once
+#include <functional>
 #include <vector>
 #include <memory>
 #include <string>
@@ -42,12 +43,18 @@ public:
 	void addDiscountToSystem(std::shared_ptr<Discount> discount);
 
 	void showCatalog(std::ostream& os = std::cout) const;
-	bool checkout(const std::vector<int>& fragranceIds, int discountId = -1);
+	bool checkout();
+
+	void showPurchasesFiltered(std::function<bool(const Purchase&)> filter, std::ostream& os = std::cout) const;
 	void showCurrentUserPurchaseHistory(std::ostream& os = std::cout) const;
+	void showCurrentUserDeliveredPurchases(std::ostream& os = std::cout) const;
 	void showAllPurchasesInSystem(std::ostream& os = std::cout) const;
 
 	bool blockUser(const std::string& username);
 	void addQuantityToFragrance(const std::string& fragranceName, int quantity);
 	bool deliverPurchase(int purchaseId);
 	bool removeReviewAndPenalize(int fragranceId, int reviewId);
+
+	bool addReviewToFragrance(const std::string& fragName, int userId, int rating, const std::string& comment);
+	bool cancelPurchase(int purchaseId);
 };

@@ -22,6 +22,12 @@
 #include "RemoveFromWishlistCommand.h"
 #include "ViewCartCommand.h"
 
+#include "CheckoutCommand.h"
+#include "ViewPurchasesCommand.h"
+#include "ViewBoughtCommand.h"
+#include "CancelPurchaseCommand.h"
+#include "MakeReviewCommand.h"
+
 Engine::Engine() : isRunning(false) {}
 
 NotinoOOP& Engine::getSystem() {
@@ -193,6 +199,40 @@ std::unique_ptr<Command> Engine::parseCommand(const std::string& input) {
     }
     else if (action == "view-cart") {
         return std::make_unique<ViewCartCommand>();
+    }
+    else if (action == "checkout") {
+        return std::make_unique<CheckoutCommand>();
+    }
+    else if (action == "view-purchases") {
+        return std::make_unique<ViewPurchasesCommand>();
+    }
+    else if (action == "view-bought") {
+        return std::make_unique<ViewBoughtCommand>();
+    }
+    else if (action == "cancel") {
+        if (args.size() < 2) {
+            throw CommandParseException("Usage: cancel <purchase-id>");
+        }
+        
+        int purchaseId = std::stoi(args[1]);
+
+        return std::make_unique<CancelPurchaseCommand>(purchaseId);
+    }
+    else if (action == "make-review") {
+        if (args.size() < 4) {
+            throw CommandParseException("Usage: make-review <fragrance-name> <rating> <comment>");
+        }
+        
+        std::string fragName = args[1];
+        int rating = std::stoi(args[2]);
+
+        // Collecting all the remaining words from the console to form the entire sentence of the comment
+        std::string comment = args[3];
+        for (size_t i = 4; i < args.size(); ++i) {
+            comment += " " + args[i];
+        }
+
+        return std::make_unique<MakeReviewCommand>(fragName, rating, comment);
     }
 	// TODO: Add more commands here (e.g., register, add, delete, etc.)
     else if (action == "end") {
