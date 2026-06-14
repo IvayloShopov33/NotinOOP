@@ -1,3 +1,5 @@
+#include <iomanip> // std::setprecision, std::fixed
+
 #include "AddBalanceCommand.h"
 #include "Engine.h"
 #include "BuyerActionVisitor.h"
@@ -22,8 +24,8 @@ void AddBalanceCommand::execute(Engine& engine) {
     // Creating the Visitor with the logic for adding balance
     BuyerActionVisitor visitor([this](Buyer& buyer) {
         buyer.addToBalance(amount);
-        std::cout << "You have successfully added " << amount << " to your account. Current balance: "
-            << buyer.getBalance() << " euro\n";
+        std::cout << "You have successfully added " << std::fixed << std::setprecision(2) << amount << " to your account. Current balance: "
+            << std::fixed << std::setprecision(2) << buyer.getBalance() << " euro\n";
         });
 
     user->acceptModifier(visitor);

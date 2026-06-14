@@ -1,6 +1,7 @@
 #include "Admin.h"
 #include "Buyer.h"
 #include "Fragrance.h"
+#include "Discount.h"
 #include "SaveToFileVisitor.h"
 
 void SaveToFileVisitor::visit(const Buyer& buyer) {
@@ -28,6 +29,17 @@ void SaveToFileVisitor::visit(const Buyer& buyer) {
         auto sharedFrag = weakFrag.lock();
         if (sharedFrag) {
             file << sharedFrag->getId() << " ";
+        }
+        else {
+            file << -1 << " ";
+        }
+    }
+
+	const auto& discounts = buyer.getDiscounts();
+    file << " DISC " << discounts.size() << " ";
+    for (const auto& disc : discounts) {
+        if (disc) {
+            file << disc->getDiscountId() << " ";
         }
         else {
             file << -1 << " ";

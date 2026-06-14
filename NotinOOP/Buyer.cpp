@@ -2,6 +2,8 @@
 
 #include "Buyer.h"
 #include "Fragrance.h"
+#include "Discount.h"
+
 #include "UserVisitor.h"
 #include "UserModifierVisitor.h"
 
@@ -107,6 +109,26 @@ void Buyer::setRemovedReviewsCount(int count) {
     }
 
     removedReviewsCount = count;
+}
+
+void Buyer::addDiscount(std::shared_ptr<Discount> discount) {
+    if (discount) {
+        discounts.push_back(discount);
+    }
+}
+
+void Buyer::removeDiscount(int discountId) {
+    for (auto it = discounts.begin(); it != discounts.end(); it++) {
+        if ((*it)->getDiscountId() == discountId) {
+            discounts.erase(it);
+
+            break;
+        }
+    }
+}
+
+const std::vector<std::shared_ptr<Discount>>& Buyer::getDiscounts() const {
+    return discounts;
 }
 
 const std::vector<std::weak_ptr<Fragrance>>& Buyer::getCart() const {

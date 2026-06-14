@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <fstream>
 #include <string>
+#include <iomanip> // std::setprecision, std::fixed
 
 #include <cstdlib> // std::rand(), std::srand()
 #include <ctime>   // std::time()
@@ -124,6 +125,7 @@ void NotinoOOP::loadData() {
 						inFile >> marker; // Reading the word "CART"
 						size_t cartSize;
 						inFile >> cartSize;
+
 						if (!inFile.fail() && marker == "CART") {
 							for (size_t i = 0; i < cartSize; i++) {
 								int fragId;
@@ -142,6 +144,7 @@ void NotinoOOP::loadData() {
 						inFile >> marker; // Reading the word "WISH"
 						size_t wishlistSize;
 						inFile >> wishlistSize;
+
 						if (!inFile.fail() && marker == "WISH") {
 							for (size_t i = 0; i < wishlistSize; i++) {
 								int fragId;
@@ -151,6 +154,25 @@ void NotinoOOP::loadData() {
 									auto frag = fragranceRepo.findById(fragId);
 									if (frag) {
 										buyer->addToWishlist(frag);
+									}
+								}
+							}
+						}
+
+						// Discounts recovery
+						inFile >> marker; // Reading the word "DISC"
+						size_t discountSize;
+						inFile >> discountSize;
+
+						if (!inFile.fail() && marker == "DISC") {
+							for (size_t i = 0; i < discountSize; i++) {
+								int discId;
+								inFile >> discId;
+
+								if (discId != -1) {
+									auto disc = discountRepo.findById(discId);
+									if (disc) {
+										buyer->addDiscount(disc);
 									}
 								}
 							}
@@ -395,7 +417,7 @@ void NotinoOOP::showCatalog(std::ostream& os) const {
 	for (const auto& frag : catalog) {
 		if (frag) {
 			os << "ID: #" << frag->getId() << " | " << frag->getBrand()
-				<< " - " << frag->getName() << " | Price: " << frag->getPrice() << " euro\n";
+				<< " - " << frag->getName() << " | Price: " << std::fixed << std::setprecision(2) << frag->getPrice() << " euro\n";
 		}
 	}
 	os << "---------------------------\n";
@@ -423,8 +445,16 @@ bool NotinoOOP::checkout() {
 
 		for (const auto& weakFrag : cart) {
 			if (auto frag = weakFrag.lock()) {
-				originalTotal += frag->getPrice();
-				validFragrances.push_back(std::move(frag));
+				if (frag->getQuantity() > 0)
+				{
+					originalTotal += frag->getPrice();
+					validFragrances.push_back(std::move(frag));
+				}
+				else
+				{
+					std::cout << "The perfume '" << frag->getName()
+						<< "' is currently out of stock and was skipped.\n";
+				}
 			}
 		}
 
@@ -438,7 +468,8 @@ bool NotinoOOP::checkout() {
 		double finalPrice = originalTotal;
 		std::shared_ptr<Discount> bestDiscount = nullptr;
 
-		for (const auto& discount : discountRepo.getAll()) {
+		const auto& buyerDiscounts = buyer.getDiscounts();
+		for (const auto& discount : buyerDiscounts) {
 			if (discount) {
 				double currentDiscountTotal = 0.0;
 
@@ -454,13 +485,22 @@ bool NotinoOOP::checkout() {
 		}
 
 		if (buyer.getBalance() < finalPrice) {
-			std::cout << "Error! Insufficient stock. Needed " << finalPrice
-				<< " euro, and you have " << buyer.getBalance() << " euro.\n";
+			std::cout << "Error! Insufficient stock. Needed " << std::fixed << std::setprecision(2) << finalPrice
+				<< " euro, and you have " << std::fixed << std::setprecision(2) << buyer.getBalance() << " euro.\n";
 
 			return;
 		}
 
 		buyer.deductBalance(finalPrice);
+
+		for (auto& frag : validFragrances) {
+			frag->reduceQuantity(1);
+		}
+
+		// Removing the used discount from the buyer's list of available discounts
+		if (bestDiscount) {
+			buyer.removeDiscount(bestDiscount->getDiscountId());
+		}
 
 		Purchase newPurchase(buyer.getId(), validFragrances, bestDiscount);
 		purchases.push_back(std::move(newPurchase));
@@ -472,7 +512,19 @@ bool NotinoOOP::checkout() {
 			std::cout << "A voucher is attached. ";
 		}
 
-		std::cout << "Withheld " << finalPrice << " euro.\n";
+		std::cout << "Withheld " << std::fixed << std::setprecision(2) << finalPrice << " euro.\n";
+
+		// Randomly rewarding the buyer with a new personal voucher for their next purchase
+		const auto& allSystemDiscounts = discountRepo.getAll();
+		if (!allSystemDiscounts.empty()) {
+			int randIdx = std::rand() % allSystemDiscounts.size();
+			auto rewardDiscount = allSystemDiscounts[randIdx];
+
+			buyer.addDiscount(rewardDiscount);
+			std::cout << "Bonus! You received a new personal voucher for your next purchase: ID #"
+				<< rewardDiscount->getDiscountId() << "\n";
+		}
+
 		isSuccessful = true;
 		});
 
@@ -826,7 +878,7 @@ void NotinoOOP::recommendFragrances() const {
 			std::cout << printedCount + 1 << ". "
 				<< candidates[randomIndex]->getBrand() << " "
 				<< candidates[randomIndex]->getName() << " - "
-				<< candidates[randomIndex]->getPrice() << " euro\n";
+				<< std::fixed << std::setprecision(2) << candidates[randomIndex]->getPrice() << " euro\n";
 
 			// ERASING the perfume from the vector so it doesn't fall off again on the next spin!
 			candidates.erase(candidates.begin() + randomIndex);

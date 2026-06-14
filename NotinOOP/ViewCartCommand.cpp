@@ -1,3 +1,5 @@
+#include <iomanip> // std::setprecision, std::fixed
+
 #include "ViewCartCommand.h"
 #include "BuyerActionVisitor.h"
 #include "Buyer.h"
@@ -32,7 +34,7 @@ void ViewCartCommand::execute(Engine& engine) {
 			}
 
 			std::cout << "- " << frag->getBrand() << " " << frag->getName()
-				<< " | Price: " << frag->getPrice() << " euro\n";
+				<< " | Price: " << std::fixed << std::setprecision(2) << frag->getPrice() << " euro\n";
 
 			const auto& notes = frag->getfragranceFamily();
 			if (!notes.empty()) {
@@ -52,7 +54,7 @@ void ViewCartCommand::execute(Engine& engine) {
 		}
 
 		std::cout << "----------------------\n";
-		std::cout << "Total: " << total << " euro\n\n";
+		std::cout << "Total: " << std::fixed << std::setprecision(2) << total << " euro\n\n";
 		});
 
 	user->acceptModifier(visitor);

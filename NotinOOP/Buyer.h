@@ -6,14 +6,17 @@
 // Pre-declarations - tell the compiler that these classes exist
 class Fragrance;
 class Purchase;
+class Discount;
 
 class Buyer : public User {
 private:
     double balance = 0.0;
     int removedReviewsCount = 0;
+
     std::vector<std::weak_ptr<Fragrance>> cart;
     std::vector<std::weak_ptr<Fragrance>> wishlist;
     std::vector<std::shared_ptr<Purchase>> purchases;
+    std::vector<std::shared_ptr<Discount>> discounts;
 
 public:
     Buyer(const std::string& username, const std::string& password, double balance = 0.0);
@@ -42,6 +45,10 @@ public:
     void incrementRemovedReviews();
     void setRemovedReviewsCount(int count);
 
+    void addDiscount(std::shared_ptr<Discount> discount);
+    void removeDiscount(int discountId);
+
+    const std::vector<std::shared_ptr<Discount>>& getDiscounts() const;
     const std::vector<std::weak_ptr<Fragrance>>& getCart() const;
     const std::vector<std::weak_ptr<Fragrance>>& getWishlist() const;
 

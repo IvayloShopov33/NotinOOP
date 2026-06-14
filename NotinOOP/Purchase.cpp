@@ -60,6 +60,7 @@ Purchase::Purchase(int existingId, int userId, const std::vector<std::shared_ptr
 int Purchase::getPurchaseId() const { return purchaseId; }
 int Purchase::getUserId() const { return userId; }
 PurchaseStatus Purchase::getStatus() const { return status; }
+
 const std::vector<Purchase::PurchaseItem>& Purchase::getItems() const { return items; }
 std::shared_ptr<Discount> Purchase::getAppliedDiscount() const { return appliedDiscount; }
 
