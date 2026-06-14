@@ -31,6 +31,12 @@
 
 Engine::Engine() : isRunning(false) {}
 
+Engine& Engine::getInstance() {
+    static Engine instance;
+
+    return instance;
+}
+
 NotinoOOP& Engine::getSystem() {
     return system;
 }
