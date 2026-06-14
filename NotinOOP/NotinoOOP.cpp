@@ -12,6 +12,7 @@
 
 #include "SaveToFileVisitor.h"
 #include "BuyerActionVisitor.h"
+#include "PasswordHasher.h"
 
 #include "Discount.h"
 #include "BrandDiscount.h"
@@ -21,814 +22,823 @@ NotinoOOP::NotinoOOP() : currentUser(nullptr) {}
 
 
 void NotinoOOP::loadData() {
-    std::cout << "Loading data from database...\n";
+	std::cout << "Loading data from database...\n";
 
-    std::ifstream inFile("system_data.txt");
-    if (!inFile.is_open()) {
-        std::cout << "No existing database found. Starting fresh.\n";
-        return;
-    }
+	std::ifstream inFile("system_data.txt");
+	if (!inFile.is_open()) {
+		std::cout << "No existing database found. Starting fresh.\n";
+	}
+	else
+	{
+		std::string currentSection = "";
+		std::string token;
 
-    std::string currentSection = "";
-    std::string token;
+		while (inFile >> token) {
+			// Check if the word is a section title (starts with '[' and ends with ']')
+			if (token.front() == '[' && token.back() == ']') {
+				currentSection = token;
+				continue;
+			}
 
-    while (inFile >> token) {
-        // Check if the word is a section title (starts with '[' and ends with ']')
-        if (token.front() == '[' && token.back() == ']') {
-            currentSection = token;
-            continue;
-        }
+			if (currentSection == "[FRAGRANCES]") {
+				int id = std::stoi(token);
+				std::string brand, name;
+				double price;
+				int quantity;
+				size_t familySize;
 
-        if (currentSection == "[FRAGRANCES]") {
-            int id = std::stoi(token);
-            std::string brand, name;
-            double price;
-            int quantity;
-            size_t familySize;
+				inFile >> brand >> name >> price >> quantity >> familySize;
 
-            inFile >> brand >> name >> price >> quantity >> familySize;
+				if (!inFile.fail()) {
+					std::vector<std::string> families;
 
-            if (!inFile.fail()) {
-                std::vector<std::string> families;
+					for (size_t i = 0; i < familySize; i++) {
+						std::string note;
+						inFile >> note;
+						families.push_back(note);
+					}
 
-                for (size_t i = 0; i < familySize; i++) {
-                    std::string note;
-                    inFile >> note;
-                    families.push_back(note);
-                }
+					auto newFrag = std::make_shared<Fragrance>(id, name, brand, price, families, quantity);
+					fragranceRepo.addFragrance(std::move(newFrag));
+				}
+			}
+			else if (currentSection == "[DISCOUNTS]") {
+				std::string discountType = token;
+				int id;
+				double percent;
 
-                auto newFrag = std::make_shared<Fragrance>(id, name, brand, price, families, quantity);
-                fragranceRepo.addFragrance(std::move(newFrag));
-            }
-        }
-        else if (currentSection == "[DISCOUNTS]") {
-            std::string discountType = token;
-            int id;
-            double percent;
+				inFile >> id;
+				inFile >> percent;
 
-            inFile >> id;
-            inFile >> percent;
+				if (discountType == "BONUS") {
+					double bonusAmount;
+					inFile >> bonusAmount;
 
-            if (discountType == "BONUS") {
-                double bonusAmount;
-                inFile >> bonusAmount;
+					if (!inFile.fail()) {
+						discountRepo.addDiscount(std::make_shared<BonusDiscount>(id, percent, bonusAmount));
+					}
+				}
+				else if (discountType == "BRAND") {
+					std::string brandName;
+					inFile >> brandName;
 
-                if (!inFile.fail()) {
-                    discountRepo.addDiscount(std::make_shared<BonusDiscount>(id, percent, bonusAmount));
-                }
-            }
-            else if (discountType == "BRAND") {
-                std::string brandName;
-                inFile >> brandName;
+					if (!inFile.fail()) {
+						discountRepo.addDiscount(std::make_shared<BrandDiscount>(id, percent, brandName));
+					}
+				}
+			}
+			else if (currentSection == "[USERS]") {
+				std::string role = token;
 
-                if (!inFile.fail()) {
-                    discountRepo.addDiscount(std::make_shared<BrandDiscount>(id, percent, brandName));
-                }
-            }
-        }
-        else if (currentSection == "[USERS]") {
-            std::string role = token;
+				if (role == "ADMIN") {
+					int id;
+					std::string username, password;
 
-            if (role == "ADMIN") {
-                int id;
-                std::string username, password;
+					inFile >> id;
+					inFile >> username;
+					inFile >> password;
 
-                inFile >> id;
-                inFile >> username;
-                inFile >> password;
+					if (!inFile.fail()) {
+						userRepo.addUser(std::make_shared<Admin>(id, username, password));
+					}
+				}
+				else if (role == "BUYER") {
+					int id;
+					std::string username, password;
+					double balance;
+					int removedReviews;
 
-                if (!inFile.fail()) {
-                    userRepo.addUser(std::make_shared<Admin>(id, username, password));
-                }
-            }
-            else if (role == "BUYER") {
-                int id;
-                std::string username, password;
-                double balance;
-				int removedReviews;
+					inFile >> id;
+					inFile >> username;
+					inFile >> password;
+					inFile >> balance;
+					inFile >> removedReviews;
 
-                inFile >> id;
-                inFile >> username;
-                inFile >> password;
-                inFile >> balance;
-				inFile >> removedReviews;
+					if (!inFile.fail()) {
+						auto buyer = std::make_shared<Buyer>(id, username, password, balance);
+						buyer->setRemovedReviewsCount(removedReviews);
 
-                if (!inFile.fail()) {
-                    auto buyer = std::make_shared<Buyer>(id, username, password, balance);
-					buyer->setRemovedReviewsCount(removedReviews);
+						std::string marker;
 
-                    std::string marker;
+						// Cart recovery
+						inFile >> marker; // Reading the word "CART"
+						size_t cartSize;
+						inFile >> cartSize;
+						if (!inFile.fail() && marker == "CART") {
+							for (size_t i = 0; i < cartSize; i++) {
+								int fragId;
+								inFile >> fragId;
 
-                    // Cart recovery
-                    inFile >> marker; // Reading the word "CART"
-                    size_t cartSize;
-                    inFile >> cartSize;
-                    if (!inFile.fail() && marker == "CART") {
-                        for (size_t i = 0; i < cartSize; i++) {
-                            int fragId;
-                            inFile >> fragId;
+								if (fragId != -1) {
+									auto frag = fragranceRepo.findById(fragId);
+									if (frag) {
+										buyer->addToCart(frag);
+									}
+								}
+							}
+						}
 
-                            if (fragId != -1) {
-                                auto frag = fragranceRepo.findById(fragId);
-                                if (frag) {
-                                    buyer->addToCart(frag);
-                                }
-                            }
-                        }
-                    }
+						// Wishlist recovery
+						inFile >> marker; // Reading the word "WISH"
+						size_t wishlistSize;
+						inFile >> wishlistSize;
+						if (!inFile.fail() && marker == "WISH") {
+							for (size_t i = 0; i < wishlistSize; i++) {
+								int fragId;
+								inFile >> fragId;
 
-					// Wishlist recovery
-                    inFile >> marker; // Reading the word "WISH"
-					size_t wishlistSize;
-                    inFile >> wishlistSize;
-                    if (!inFile.fail() && marker == "WISH") {
-                        for (size_t i = 0; i < wishlistSize; i++) {
-                            int fragId;
-                            inFile >> fragId;
+								if (fragId != -1) {
+									auto frag = fragranceRepo.findById(fragId);
+									if (frag) {
+										buyer->addToWishlist(frag);
+									}
+								}
+							}
+						}
 
-                            if (fragId != -1) {
-                                auto frag = fragranceRepo.findById(fragId);
-                                if (frag) {
-                                    buyer->addToWishlist(frag);
-                                }
-                            }
-                        }
-                    }
+						userRepo.addUser(std::move(buyer));
+					}
+				}
+			}
+			else if (currentSection == "[PURCHASES]") {
+				int purchaseId = std::stoi(token);
+				int userId, statusInt, discountId;
+				size_t itemCount;
 
-                    userRepo.addUser(std::move(buyer));
-                }
-            }
-        }
-        else if (currentSection == "[PURCHASES]") {
-            int purchaseId = std::stoi(token);
-            int userId, statusInt, discountId;
-            size_t itemCount;
+				inFile >> userId;
+				inFile >> statusInt;
+				inFile >> discountId;
+				inFile >> itemCount;
 
-            inFile >> userId;
-            inFile >> statusInt;
-            inFile >> discountId;
-            inFile >> itemCount;
+				if (!inFile.fail()) {
+					std::vector<std::shared_ptr<Fragrance>> purchaseFrags;
+					for (size_t i = 0; i < itemCount; i++) {
+						int fragId;
+						inFile >> fragId;
 
-            if (!inFile.fail()) {
-                std::vector<std::shared_ptr<Fragrance>> purchaseFrags;
-                for (size_t i = 0; i < itemCount; i++) {
-                    int fragId;
-                    inFile >> fragId;
+						auto frag = fragranceRepo.findById(fragId);
+						if (frag) {
+							purchaseFrags.push_back(frag);
+						}
+					}
 
-                    auto frag = fragranceRepo.findById(fragId);
-                    if (frag) {
-                        purchaseFrags.push_back(frag);
-                    }
-                }
+					auto appliedDiscount = (discountId != -1) ? discountRepo.findById(discountId) : nullptr;
+					Purchase loadedPurchase(purchaseId, userId, purchaseFrags, static_cast<PurchaseStatus>(statusInt), appliedDiscount);
+					purchases.push_back(std::move(loadedPurchase));
+				}
+			}
+			else if (currentSection == "[REVIEWS]") {
+				int id = std::stoi(token);
+				int userId, rating;
+				std::string fragName, comment;
 
-                auto appliedDiscount = (discountId != -1) ? discountRepo.findById(discountId) : nullptr;
-                Purchase loadedPurchase(purchaseId, userId, purchaseFrags, static_cast<PurchaseStatus>(statusInt), appliedDiscount);
-                purchases.push_back(std::move(loadedPurchase));
-            }
-        }
-        else if (currentSection == "[REVIEWS]") {
-            int id = std::stoi(token);
-            int userId, rating;
-            std::string fragName, comment;
+				inFile >> userId;
+				inFile >> rating;
+				inFile >> fragName;
 
-            inFile >> userId;
-            inFile >> rating;
-            inFile >> fragName;
+				if (!inFile.fail()) {
+					// Using getline here only for the comment because it contains spaces in the sentence
+					std::getline(inFile, comment);
 
-            if (!inFile.fail()) {
-                // Using getline here only for the comment because it contains spaces in the sentence
-                std::getline(inFile, comment);
+					// Removing the first blank space that remains before the beginning of the sentence
+					if (!comment.empty() && comment[0] == ' ') {
+						comment.erase(0, 1);
+					}
 
-                // Removing the first blank space that remains before the beginning of the sentence
-                if (!comment.empty() && comment[0] == ' ') {
-                    comment.erase(0, 1);
-                }
+					Review loadedReview(id, fragName, userId, comment, rating);
+					reviews.push_back(loadedReview);
 
-                Review loadedReview(id, fragName, userId, comment, rating);
-                reviews.push_back(loadedReview);
+					auto frag = findFragranceByName(fragName);
+					if (frag) {
+						frag->addReview(std::move(loadedReview));
+					}
+				}
+			}
+		}
 
-                auto frag = findFragranceByName(fragName);
-                if (frag) {
-                    frag->addReview(std::move(loadedReview));
-                }
-            }
-        }
-    }
+		inFile.close();
+	}
 
-    inFile.close();
-    std::cout << "Data loaded successfully.\n";
+	if (userRepo.getAll().empty()) {
+		auto defaultAdmin = std::make_shared<Admin>("admin", "Adminadmin123");
+		userRepo.addUser(std::move(defaultAdmin));
+
+		std::cout << "Default Admin created -> Username: admin\n";
+	}
+
+	std::cout << "Data loaded successfully.\n";
 }
 
 void NotinoOOP::saveData() const {
-    std::cout << "Saving current state to files...\n";
-    std::ofstream outFile("system_data.txt");
-    if (!outFile.is_open()) {
-        std::cout << "The file cannot be opened for writing!\n";
-        return;
-    }
+	std::cout << "Saving current state to files...\n";
+	std::ofstream outFile("system_data.txt");
+	if (!outFile.is_open()) {
+		std::cout << "The file cannot be opened for writing!\n";
+		return;
+	}
 
-    outFile << "[FRAGRANCES]\n";
-    for (const auto& frag : fragranceRepo.getAll()) {
-        if (frag) {
-            outFile << frag->getId() << " " << frag->getBrand() << " "
-                << frag->getName() << " " << frag->getPrice() << " "
-                << frag->getQuantity() << " ";
+	outFile << "[FRAGRANCES]\n";
+	for (const auto& frag : fragranceRepo.getAll()) {
+		if (frag) {
+			outFile << frag->getId() << " " << frag->getBrand() << " "
+				<< frag->getName() << " " << frag->getPrice() << " "
+				<< frag->getQuantity() << " ";
 
-            const auto& families = frag->getfragranceFamily();
-            outFile << families.size() << " ";
-            for (const auto& note : families) {
-                outFile << note << " ";
-            }
+			const auto& families = frag->getfragranceFamily();
+			outFile << families.size() << " ";
+			for (const auto& note : families) {
+				outFile << note << " ";
+			}
 
-            outFile << "\n";
-        }
-    }
+			outFile << "\n";
+		}
+	}
 
-    outFile << "[DISCOUNTS]\n";
-    for (const auto& disc : discountRepo.getAll()) {
-        if (disc) {
-            outFile << disc->serialize() << "\n";
-        }
-    }
+	outFile << "[DISCOUNTS]\n";
+	for (const auto& disc : discountRepo.getAll()) {
+		if (disc) {
+			outFile << disc->serialize() << "\n";
+		}
+	}
 
-    outFile << "[USERS]\n";
-    SaveToFileVisitor visitor(outFile);
+	outFile << "[USERS]\n";
+	SaveToFileVisitor visitor(outFile);
 
-    for (const auto& user : userRepo.getAll()) {
-        if (user) user->accept(visitor);
-    }
+	for (const auto& user : userRepo.getAll()) {
+		if (user) user->accept(visitor);
+	}
 
-    outFile << "[PURCHASES]\n";
-    for (const auto& purchase : purchases) {
-        outFile << purchase.getPurchaseId() << " "
-            << purchase.getUserId() << " "
-            << static_cast<int>(purchase.getStatus()) << " ";
+	outFile << "[PURCHASES]\n";
+	for (const auto& purchase : purchases) {
+		outFile << purchase.getPurchaseId() << " "
+			<< purchase.getUserId() << " "
+			<< static_cast<int>(purchase.getStatus()) << " ";
 
-        if (purchase.getAppliedDiscount()) {
-            outFile << purchase.getAppliedDiscount()->getDiscountId() << " ";
-        }
-        else {
-            outFile << "-1 ";
-        }
+		if (purchase.getAppliedDiscount()) {
+			outFile << purchase.getAppliedDiscount()->getDiscountId() << " ";
+		}
+		else {
+			outFile << "-1 ";
+		}
 
-        const auto& items = purchase.getItems();
-        outFile << items.size() << " ";
+		const auto& items = purchase.getItems();
+		outFile << items.size() << " ";
 
-        for (const auto& item : items) {
-            if (item.fragrance) outFile << item.fragrance->getId() << " ";
-        }
+		for (const auto& item : items) {
+			if (item.fragrance) outFile << item.fragrance->getId() << " ";
+		}
 
-        outFile << "\n";
-    }
+		outFile << "\n";
+	}
 
-    outFile << "[REVIEWS]\n";
-    for (const auto& review : reviews) {
-        outFile << review.getId() << " "
-            << review.getUserId() << " "
-            << review.getRating() << " "
-            << review.getFragranceName() << " "
-            << review.getComment() << "\n";
-    }
+	outFile << "[REVIEWS]\n";
+	for (const auto& review : reviews) {
+		outFile << review.getId() << " "
+			<< review.getUserId() << " "
+			<< review.getRating() << " "
+			<< review.getFragranceName() << " "
+			<< review.getComment() << "\n";
+	}
 
-    outFile.close();
-    std::cout << "All changes saved successfully. Exit.\n";
+	outFile.close();
+	std::cout << "All changes saved successfully. Exit.\n";
 }
 
 bool NotinoOOP::registerUser(const std::string& username, const std::string& password) {
-    if (userRepo.findByUsername(username) != nullptr) {
-        std::cout << "Username '" << username << "' already exists.\n";
-        return false;
-    }
+	if (userRepo.findByUsername(username) != nullptr) {
+		std::cout << "Username '" << username << "' already exists.\n";
+		return false;
+	}
 
-    auto newBuyer = std::make_shared<Buyer>(username, password);
-    userRepo.addUser(std::move(newBuyer));
+	auto newBuyer = std::make_shared<Buyer>(username, password);
+	userRepo.addUser(std::move(newBuyer));
 
-    std::cout << "Registration is successful. You can log in to your account.\n";
-    return true;
+	std::cout << "Registration is successful. You can log in to your account.\n";
+	return true;
 }
 
 bool NotinoOOP::registerAdmin(const std::string& username, const std::string& password) {
-    if (userRepo.findByUsername(username) != nullptr) {
-        std::cout << "Username '" << username << "' already exists.\n";
-        return false;
-    }
+	if (userRepo.findByUsername(username) != nullptr) {
+		std::cout << "Username '" << username << "' already exists.\n";
+		return false;
+	}
 
-    auto newAdmin = std::make_shared<Admin>(username, password);
-    userRepo.addUser(std::move(newAdmin));
+	auto newAdmin = std::make_shared<Admin>(username, password);
+	userRepo.addUser(std::move(newAdmin));
 
-    std::cout << "Administrator registration successful.\n";
-    return true;
+	std::cout << "Administrator registration successful.\n";
+	return true;
 }
 
 bool NotinoOOP::loginUser(const std::string& username, const std::string& password) {
-    if (currentUser != nullptr) {
-        std::cout << "There is already an active session for user: " << currentUser->getUsername() << "\n";
-        return false;
-    }
+	if (currentUser != nullptr) {
+		std::cout << "There is already an active session for user: " << currentUser->getUsername() << "\n";
+		return false;
+	}
 
-    auto user = userRepo.findByUsername(username);
-    if (user == nullptr || user->getPassword() != password) {
-        std::cout << "Invalid username or password.\n";
-        return false;
-    }
+	auto user = userRepo.findByUsername(username);
+	if (user == nullptr || user->getPassword() != PasswordHasher::hash(password)) {
+		std::cout << "Invalid username or password.\n";
+		return false;
+	}
 
-    currentUser = user;
-    std::cout << "Login successful! Welcome, " << currentUser->getUsername() << ".\n";
-    return true;
+	currentUser = user;
+	std::cout << "Login successful! Welcome, " << currentUser->getUsername() << ".\n";
+	return true;
 }
 
 void NotinoOOP::logoutUser() {
-    if (currentUser == nullptr) {
-        std::cout << "There is no active user session at the moment.\n";
+	if (currentUser == nullptr) {
+		std::cout << "There is no active user session at the moment.\n";
 
-        return;
-    }
+		return;
+	}
 
-    std::cout << "User " << currentUser->getUsername() << " logged out successfully.\n";
-    currentUser = nullptr;
+	std::cout << "User " << currentUser->getUsername() << " logged out successfully.\n";
+	currentUser = nullptr;
 }
 
 std::shared_ptr<User> NotinoOOP::getCurrentUser() const {
-    return currentUser;
+	return currentUser;
 }
 
 void NotinoOOP::addFragranceToCatalog(std::shared_ptr<Fragrance> fragrance) {
-    fragranceRepo.addFragrance(std::move(fragrance));
+	fragranceRepo.addFragrance(std::move(fragrance));
 }
 
 bool NotinoOOP::removeFragranceFromCatalog(int fragranceId) {
-    return fragranceRepo.removeFragrance(fragranceId);
+	return fragranceRepo.removeFragrance(fragranceId);
 }
 
 std::shared_ptr<Fragrance> NotinoOOP::findFragranceByName(const std::string& name) const {
-    for (const auto& frag : fragranceRepo.getAll()) {
-        if (frag && frag->getName() == name) {
-            return frag;
-        }
-    }
+	for (const auto& frag : fragranceRepo.getAll()) {
+		if (frag && frag->getName() == name) {
+			return frag;
+		}
+	}
 
-    return nullptr;
+	return nullptr;
 }
 
 void NotinoOOP::addDiscountToSystem(std::shared_ptr<Discount> discount) {
-    discountRepo.addDiscount(std::move(discount));
+	discountRepo.addDiscount(std::move(discount));
 }
 
 void NotinoOOP::showCatalog(std::ostream& os) const {
-    const auto& catalog = fragranceRepo.getAll();
-    if (catalog.empty()) {
-        os << "The catalog is currently empty.\n";
-        return;
-    }
+	const auto& catalog = fragranceRepo.getAll();
+	if (catalog.empty()) {
+		os << "The catalog is currently empty.\n";
+		return;
+	}
 
-    os << "\n--- PERFUME CATALOGUE ---\n";
-    for (const auto& frag : catalog) {
-        if (frag) {
-            os << "ID: #" << frag->getId() << " | " << frag->getBrand()
-                << " - " << frag->getName() << " | Price: " << frag->getPrice() << " euro\n";
-        }
-    }
-    os << "---------------------------\n";
+	os << "\n--- PERFUME CATALOGUE ---\n";
+	for (const auto& frag : catalog) {
+		if (frag) {
+			os << "ID: #" << frag->getId() << " | " << frag->getBrand()
+				<< " - " << frag->getName() << " | Price: " << frag->getPrice() << " euro\n";
+		}
+	}
+	os << "---------------------------\n";
 }
 
 bool NotinoOOP::checkout() {
-    if (!currentUser) {
-        std::cout << "Error! You must be logged in to complete an order.\n";
+	if (!currentUser) {
+		std::cout << "Error! You must be logged in to complete an order.\n";
 
-        return false;
-    }
+		return false;
+	}
 
-    bool isSuccessful = false;
+	bool isSuccessful = false;
 
-    BuyerActionVisitor visitor([this, &isSuccessful](Buyer& buyer) {
-        const auto& cart = buyer.getCart();
-        if (cart.empty()) {
-            std::cout << "Error! Your cart is empty.\n";
+	BuyerActionVisitor visitor([this, &isSuccessful](Buyer& buyer) {
+		const auto& cart = buyer.getCart();
+		if (cart.empty()) {
+			std::cout << "Error! Your cart is empty.\n";
 
-            return;
-        }
+			return;
+		}
 
-        double originalTotal = 0.0;
-        std::vector<std::shared_ptr<Fragrance>> validFragrances;
+		double originalTotal = 0.0;
+		std::vector<std::shared_ptr<Fragrance>> validFragrances;
 
-        for (const auto& weakFrag : cart) {
-            if (auto frag = weakFrag.lock()) {
-                originalTotal += frag->getPrice();
-                validFragrances.push_back(std::move(frag));
-            }
-        }
+		for (const auto& weakFrag : cart) {
+			if (auto frag = weakFrag.lock()) {
+				originalTotal += frag->getPrice();
+				validFragrances.push_back(std::move(frag));
+			}
+		}
 
-        if (validFragrances.empty()) {
-            std::cout << "Error! The selected products are no longer available.\n";
-            buyer.clearCart();
+		if (validFragrances.empty()) {
+			std::cout << "Error! The selected products are no longer available.\n";
+			buyer.clearCart();
 
-            return;
-        }
+			return;
+		}
 
-        double finalPrice = originalTotal;
-        std::shared_ptr<Discount> bestDiscount = nullptr;
+		double finalPrice = originalTotal;
+		std::shared_ptr<Discount> bestDiscount = nullptr;
 
-        for (const auto& discount : discountRepo.getAll()) {
-            if (discount) {
-                double currentDiscountTotal = 0.0;
+		for (const auto& discount : discountRepo.getAll()) {
+			if (discount) {
+				double currentDiscountTotal = 0.0;
 
-                for (const auto& frag : validFragrances) {
-                    currentDiscountTotal += discount->apply(frag->getPrice(), frag->getBrand());
-                }
+				for (const auto& frag : validFragrances) {
+					currentDiscountTotal += discount->apply(frag->getPrice(), frag->getBrand());
+				}
 
-                if (currentDiscountTotal < finalPrice) {
-                    finalPrice = currentDiscountTotal;
-                    bestDiscount = discount;
-                }
-            }
-        }
+				if (currentDiscountTotal < finalPrice) {
+					finalPrice = currentDiscountTotal;
+					bestDiscount = discount;
+				}
+			}
+		}
 
-        if (buyer.getBalance() < finalPrice) {
-            std::cout << "Error! Insufficient stock. Needed " << finalPrice
-                << " euro, and you have " << buyer.getBalance() << " euro.\n";
+		if (buyer.getBalance() < finalPrice) {
+			std::cout << "Error! Insufficient stock. Needed " << finalPrice
+				<< " euro, and you have " << buyer.getBalance() << " euro.\n";
 
-            return;
-        }
+			return;
+		}
 
-        buyer.deductBalance(finalPrice);
+		buyer.deductBalance(finalPrice);
 
-        Purchase newPurchase(buyer.getId(), validFragrances, bestDiscount);
-        purchases.push_back(std::move(newPurchase));
+		Purchase newPurchase(buyer.getId(), validFragrances, bestDiscount);
+		purchases.push_back(std::move(newPurchase));
 
-        buyer.clearCart();
-        std::cout << "Successful order! ";
+		buyer.clearCart();
+		std::cout << "Successful order! ";
 
-        if (bestDiscount) {
-            std::cout << "A voucher is attached. ";
-        }
+		if (bestDiscount) {
+			std::cout << "A voucher is attached. ";
+		}
 
-        std::cout << "Withheld " << finalPrice << " euro.\n";
-        isSuccessful = true;
-        });
+		std::cout << "Withheld " << finalPrice << " euro.\n";
+		isSuccessful = true;
+		});
 
-    currentUser->acceptModifier(visitor);
-    if (!visitor.wasExecuted()) {
-        std::cout << "Error! Only buyers can place orders.\n";
-    }
+	currentUser->acceptModifier(visitor);
+	if (!visitor.wasExecuted()) {
+		std::cout << "Error! Only buyers can place orders.\n";
+	}
 
-    return isSuccessful;
+	return isSuccessful;
 }
 
 void NotinoOOP::showPurchasesFiltered(std::function<bool(const Purchase&)> filter, std::ostream& os) const {
-    if (currentUser == nullptr) {
-        os << "No user logged in.\n";
+	if (currentUser == nullptr) {
+		os << "No user logged in.\n";
 
-        return;
-    }
+		return;
+	}
 
-    int currentUserId = currentUser->getId();
-    bool foundAny = false;
+	int currentUserId = currentUser->getId();
+	bool foundAny = false;
 
-    for (const auto& purchase : purchases) {
-        // Checking if the order belongs to the current user AND if it matches the filter
-        if (purchase.getUserId() == currentUserId && filter(purchase)) {
-            purchase.show(os);
-            foundAny = true;
-        }
-    }
+	for (const auto& purchase : purchases) {
+		// Checking if the order belongs to the current user AND if it matches the filter
+		if (purchase.getUserId() == currentUserId && filter(purchase)) {
+			purchase.show(os);
+			foundAny = true;
+		}
+	}
 
-    if (!foundAny) {
-        os << "No orders found matching the criteria.\n";
-    }
+	if (!foundAny) {
+		os << "No orders found matching the criteria.\n";
+	}
 
-    os << "----------------------------------------------------------------------\n";
+	os << "----------------------------------------------------------------------\n";
 }
 
 void NotinoOOP::showCurrentUserPurchaseHistory(std::ostream& os) const {
-    os << "\n--- USER ALL PURCHASES HISTORY: " << currentUser->getUsername() << " ---\n";
+	os << "\n--- USER ALL PURCHASES HISTORY: " << currentUser->getUsername() << " ---\n";
 
-    showPurchasesFiltered([](const Purchase& p) {
-        return true;
-        }, std::cout);
+	showPurchasesFiltered([](const Purchase& p) {
+		return true;
+		}, std::cout);
 }
 
 void NotinoOOP::showCurrentUserDeliveredPurchases(std::ostream& os) const {
-    os << "\n--- USER ALL SUCCESSFUL PURCHASES (DELIVERED) HISTORY: " << currentUser->getUsername() << " --- \n";
+	os << "\n--- USER ALL SUCCESSFUL PURCHASES (DELIVERED) HISTORY: " << currentUser->getUsername() << " --- \n";
 
-    showPurchasesFiltered([](const Purchase& p) {
-        return p.getStatus() == PurchaseStatus::DELIVERED;
-        }, std::cout);
+	showPurchasesFiltered([](const Purchase& p) {
+		return p.getStatus() == PurchaseStatus::DELIVERED;
+		}, std::cout);
 }
 
 void NotinoOOP::showAllPurchasesInSystem(std::ostream& os) const {
-    os << "\n--- GLOBAL CHECK OF ALL PURCHASES IN THE SYSTEM ---\n";
-    if (purchases.empty()) {
-        os << "There are no registered purchases in the system.\n";
-        return;
-    }
+	os << "\n--- GLOBAL CHECK OF ALL PURCHASES IN THE SYSTEM ---\n";
+	if (purchases.empty()) {
+		os << "There are no registered purchases in the system.\n";
+		return;
+	}
 
-    for (const auto& purchase : purchases) {
-        purchase.show(os);
-    }
+	for (const auto& purchase : purchases) {
+		purchase.show(os);
+	}
 
-    os << "---------------------------------------------------\n";
+	os << "---------------------------------------------------\n";
 }
 
 bool NotinoOOP::blockUser(const std::string& username) {
-    auto user = userRepo.findByUsername(username);
-    if (!user) {
-        return false;
-    }
+	auto user = userRepo.findByUsername(username);
+	if (!user) {
+		return false;
+	}
 
-    return userRepo.removeUser(user->getId());
+	return userRepo.removeUser(user->getId());
 }
 
 // DELIVERY SIMULATION
 void NotinoOOP::addQuantityToFragrance(const std::string& fragranceName, int quantity) {
-    bool found = false;
+	bool found = false;
 
-    for (const auto& frag : fragranceRepo.getAll()) {
-        if (frag && frag->getName() == fragranceName) {
-            frag->addQuantity(quantity);
-            found = true;
+	for (const auto& frag : fragranceRepo.getAll()) {
+		if (frag && frag->getName() == fragranceName) {
+			frag->addQuantity(quantity);
+			found = true;
 
-            std::cout << "Successfully added " << quantity
-                << " pieces per perfume '" << fragranceName << "'.\n";
-            break;
-        }
-    }
+			std::cout << "Successfully added " << quantity
+				<< " pieces per perfume '" << fragranceName << "'.\n";
+			break;
+		}
+	}
 
-    if (!found) {
-        std::cout << "Perfume with a name '" << fragranceName << "' does not exist in the catalog.\n";
-    }
+	if (!found) {
+		std::cout << "Perfume with a name '" << fragranceName << "' does not exist in the catalog.\n";
+	}
 }
 
 bool NotinoOOP::deliverPurchase(int purchaseId) {
-    for (auto& purchase : purchases) {
-        if (purchase.getPurchaseId() == purchaseId) {
-            // Only an order that is being processed (PENDING) can be delivered.
-            if (purchase.getStatus() == PurchaseStatus::PENDING) {
-                purchase.setStatus(PurchaseStatus::DELIVERED);
+	for (auto& purchase : purchases) {
+		if (purchase.getPurchaseId() == purchaseId) {
+			// Only an order that is being processed (PENDING) can be delivered.
+			if (purchase.getStatus() == PurchaseStatus::PENDING) {
+				purchase.setStatus(PurchaseStatus::DELIVERED);
 
-                return true;
-            }
+				return true;
+			}
 
-            break; // Found it, but the status is not PENDING.
-        }
-    }
+			break; // Found it, but the status is not PENDING.
+		}
+	}
 
-    return false;
+	return false;
 }
 
 bool NotinoOOP::removeReviewAndPenalize(int fragranceId, int reviewId) {
-    auto frag = fragranceRepo.findById(fragranceId);
-    if (!frag) {
-        return false;
-    }
+	auto frag = fragranceRepo.findById(fragranceId);
+	if (!frag) {
+		return false;
+	}
 
-    int targetUserId = -1;
-    for (auto it = reviews.begin(); it != reviews.end(); it++) {
-        if (it->getId() == reviewId) {
-            targetUserId = it->getUserId();
-            reviews.erase(it);
+	int targetUserId = -1;
+	for (auto it = reviews.begin(); it != reviews.end(); it++) {
+		if (it->getId() == reviewId) {
+			targetUserId = it->getUserId();
+			reviews.erase(it);
 
-            break;
-        }
-    }
+			break;
+		}
+	}
 
-    if (targetUserId == -1) {
-        return false;
-    }
+	if (targetUserId == -1) {
+		return false;
+	}
 
-    // Deleting the review from the list of the perfume itself
-    frag->removeReviewById(reviewId);
+	// Deleting the review from the list of the perfume itself
+	frag->removeReviewById(reviewId);
 
-    // Looking for the author among the users to punish them.
-    for (const auto& user : userRepo.getAll()) {
-        if (user && user->getId() == targetUserId) {
+	// Looking for the author among the users to punish them.
+	for (const auto& user : userRepo.getAll()) {
+		if (user && user->getId() == targetUserId) {
 
-            if (!user->isAdmin()) {
-                user->applyReviewPenalty();
+			if (!user->isAdmin()) {
+				user->applyReviewPenalty();
 
-                if (user->shouldBeBlocked()) {
-                    std::cout << "The user '" << user->getUsername()
-                        << "' has 7+ removed reviews and is automatically blocked!\n";
+				if (user->shouldBeBlocked()) {
+					std::cout << "The user '" << user->getUsername()
+						<< "' has 7+ removed reviews and is automatically blocked!\n";
 
-                    blockUser(user->getUsername());
-                }
-            }
+					blockUser(user->getUsername());
+				}
+			}
 
-            break;
-        }
-    }
+			break;
+		}
+	}
 
-    return true;
+	return true;
 }
 
 bool NotinoOOP::addReviewToFragrance(const std::string& fragName, int userId, int rating, const std::string& comment) {
-    auto frag = findFragranceByName(fragName);
-    if (!frag) {
-        std::cout << "Error! Perfume with name '" << fragName << "' does not exist in the catalog.\n";
+	auto frag = findFragranceByName(fragName);
+	if (!frag) {
+		std::cout << "Error! Perfume with name '" << fragName << "' does not exist in the catalog.\n";
 
-        return false;
-    }
+		return false;
+	}
 
-    int newReviewId = reviews.empty() ? 1 : reviews.back().getId() + 1;
-    Review newReview(newReviewId, fragName, userId, comment, rating);
+	int newReviewId = reviews.empty() ? 1 : reviews.back().getId() + 1;
+	Review newReview(newReviewId, fragName, userId, comment, rating);
 
-    reviews.push_back(newReview);
-    frag->addReview(newReview);
+	reviews.push_back(newReview);
+	frag->addReview(newReview);
 
-    return true;
+	return true;
 }
 
 bool NotinoOOP::cancelPurchase(int purchaseId) {
-    if (!currentUser) {
-        return false;
-    }
+	if (!currentUser) {
+		return false;
+	}
 
-    for (auto& purchase : purchases) {
-        if (purchase.getPurchaseId() == purchaseId) {
-            if (purchase.getUserId() != currentUser->getId()) {
-                std::cout << "Error! This order does not belong to you.\n";
+	for (auto& purchase : purchases) {
+		if (purchase.getPurchaseId() == purchaseId) {
+			if (purchase.getUserId() != currentUser->getId()) {
+				std::cout << "Error! This order does not belong to you.\n";
 
-                return false;
-            }
+				return false;
+			}
 
-            if (purchase.getStatus() != PurchaseStatus::PENDING) {
-                std::cout << "Error! You can only cancel orders that are in the process of being processed (PENDING).\n";
+			if (purchase.getStatus() != PurchaseStatus::PENDING) {
+				std::cout << "Error! You can only cancel orders that are in the process of being processed (PENDING).\n";
 
-                return false;
-            }
+				return false;
+			}
 
-            bool isRefunded = false;
-            BuyerActionVisitor visitor([&purchase, &isRefunded](Buyer& buyer) {
+			bool isRefunded = false;
+			BuyerActionVisitor visitor([&purchase, &isRefunded](Buyer& buyer) {
 
-                // Returning the money to buyer
-                double refundAmount = purchase.calculateTotalPrice();
-                buyer.addToBalance(refundAmount);
+				// Returning the money to buyer
+				double refundAmount = purchase.calculateTotalPrice();
+				buyer.addToBalance(refundAmount);
 
-                // Restoring the quantities
-                for (const auto& purchaseItem : purchase.getItems()) {
-                    if (purchaseItem.fragrance) {
-                        purchaseItem.fragrance->addQuantity(1);
-                    }
-                }
+				// Restoring the quantities
+				for (const auto& purchaseItem : purchase.getItems()) {
+					if (purchaseItem.fragrance) {
+						purchaseItem.fragrance->addQuantity(1);
+					}
+				}
 
-                isRefunded = true;
-                });
+				isRefunded = true;
+				});
 
-            currentUser->acceptModifier(visitor);
-            if (isRefunded) {
-                purchase.setStatus(PurchaseStatus::CANCELED);
+			currentUser->acceptModifier(visitor);
+			if (isRefunded) {
+				purchase.setStatus(PurchaseStatus::CANCELED);
 
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
-    }
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+	}
 
-    std::cout << "Error! Order with ID #" << purchaseId << " was not found.\n";
+	std::cout << "Error! Order with ID #" << purchaseId << " was not found.\n";
 
-    return false;
+	return false;
 }
 
 void NotinoOOP::recommendFragrances() const {
-    if (!currentUser) {
-        std::cout << "Error! You must be logged in to receive recommendations.\n";
+	if (!currentUser) {
+		std::cout << "Error! You must be logged in to receive recommendations.\n";
 
-        return;
-    }
+		return;
+	}
 
-    BuyerActionVisitor visitor([this](Buyer& buyer) {
-        const auto& wishlist = buyer.getWishlist();
+	BuyerActionVisitor visitor([this](Buyer& buyer) {
+		const auto& wishlist = buyer.getWishlist();
 
-        if (wishlist.empty()) {
-            std::cout << "Your wishlist is empty. Add your favorite perfumes so we can recommend something to you!\n";
+		if (wishlist.empty()) {
+			std::cout << "Your wishlist is empty. Add your favorite perfumes so we can recommend something to you!\n";
 
-            return;
-        }
+			return;
+		}
 
-        // Collecting all the notes into one large vector
-        std::vector<std::string> allNotes;
-        std::vector<int> wishlistIds;
+		// Collecting all the notes into one large vector
+		std::vector<std::string> allNotes;
+		std::vector<int> wishlistIds;
 
-        for (const auto& weakFrag : wishlist) {
-            if (auto frag = weakFrag.lock()) {
-                wishlistIds.push_back(frag->getId());
+		for (const auto& weakFrag : wishlist) {
+			if (auto frag = weakFrag.lock()) {
+				wishlistIds.push_back(frag->getId());
 
-                for (const auto& note : frag->getfragranceFamily()) {
-                    allNotes.push_back(note);
-                }
-            }
-        }
+				for (const auto& note : frag->getfragranceFamily()) {
+					allNotes.push_back(note);
+				}
+			}
+		}
 
-        if (allNotes.empty()) {
-            std::cout << "The perfumes on your wishlist do not have assigned fragrance notes.\n";
+		if (allNotes.empty()) {
+			std::cout << "The perfumes on your wishlist do not have assigned fragrance notes.\n";
 
-            return;
-        }
+			return;
+		}
 
-        // Counting notes (with two parallel vectors)
-        std::vector<std::string> uniqueNotes;
-        std::vector<int> counts;
+		// Counting notes (with two parallel vectors)
+		std::vector<std::string> uniqueNotes;
+		std::vector<int> counts;
 
-        for (const std::string& currentNote : allNotes) {
-            bool found = false;
+		for (const std::string& currentNote : allNotes) {
+			bool found = false;
 
-            for (size_t i = 0; i < uniqueNotes.size(); i++) {
-                if (uniqueNotes[i] == currentNote) {
-                    counts[i]++;
-                    found = true;
+			for (size_t i = 0; i < uniqueNotes.size(); i++) {
+				if (uniqueNotes[i] == currentNote) {
+					counts[i]++;
+					found = true;
 
-                    break;
-                }
-            }
+					break;
+				}
+			}
 
-            // Adding the note if it is seen for the first time
-            if (!found) {
-                uniqueNotes.push_back(currentNote);
-                counts.push_back(1);
-            }
-        }
+			// Adding the note if it is seen for the first time
+			if (!found) {
+				uniqueNotes.push_back(currentNote);
+				counts.push_back(1);
+			}
+		}
 
-        // Finding the note with the largest count
-        std::string favoriteNote = "";
-        int maxCount = 0;
+		// Finding the note with the largest count
+		std::string favoriteNote = "";
+		int maxCount = 0;
 
-        for (size_t i = 0; i < counts.size(); ++i) {
-            if (counts[i] > maxCount) {
-                maxCount = counts[i];
-                favoriteNote = uniqueNotes[i];
-            }
-        }
+		for (size_t i = 0; i < counts.size(); ++i) {
+			if (counts[i] > maxCount) {
+				maxCount = counts[i];
+				favoriteNote = uniqueNotes[i];
+			}
+		}
 
-        // Finding all candidates in the catalog
-        std::vector<std::shared_ptr<Fragrance>> candidates;
+		// Finding all candidates in the catalog
+		std::vector<std::shared_ptr<Fragrance>> candidates;
 
-        for (const auto& frag : fragranceRepo.getAll()) {
-            if (frag) {
-                // Check if the perfume is already in the wishlist (with a simple cycle)
-                bool isInWishlist = false;
-                for (int id : wishlistIds) {
-                    if (id == frag->getId()) {
-                        isInWishlist = true;
+		for (const auto& frag : fragranceRepo.getAll()) {
+			if (frag) {
+				// Check if the perfume is already in the wishlist (with a simple cycle)
+				bool isInWishlist = false;
+				for (int id : wishlistIds) {
+					if (id == frag->getId()) {
+						isInWishlist = true;
 
-                        break;
-                    }
-                }
+						break;
+					}
+				}
 
-                if (!isInWishlist) {
-                    // Check if it contains the favorite note
-                    bool hasFavoriteNote = false;
-                    for (const std::string& n : frag->getfragranceFamily()) {
-                        if (n == favoriteNote) {
-                            hasFavoriteNote = true;
+				if (!isInWishlist) {
+					// Check if it contains the favorite note
+					bool hasFavoriteNote = false;
+					for (const std::string& n : frag->getfragranceFamily()) {
+						if (n == favoriteNote) {
+							hasFavoriteNote = true;
 
-                            break;
-                        }
-                    }
+							break;
+						}
+					}
 
-                    if (hasFavoriteNote) {
-                        candidates.push_back(frag);
-                    }
-                }
-            }
-        }
+					if (hasFavoriteNote) {
+						candidates.push_back(frag);
+					}
+				}
+			}
+		}
 
-        // Selecting up to 3 random
-        if (candidates.empty()) {
-            std::cout << "Unfortunately, we did not find any other perfumes with a note: '" << favoriteNote << "'.\n";
+		// Selecting up to 3 random
+		if (candidates.empty()) {
+			std::cout << "Unfortunately, we did not find any other perfumes with a note: '" << favoriteNote << "'.\n";
 
-            return;
-        }
+			return;
+		}
 
-        // Initializing the random number generator according to the clock (guaranteeing they will be different random numbers)
-        std::srand(std::time(0));
+		// Initializing the random number generator according to the clock (guaranteeing they will be different random numbers)
+		std::srand((unsigned int)std::time(0));
 
-        int printedCount = 0;
+		int printedCount = 0;
 
-        std::cout << "\n=== RECOMMENDED FOR YOU ===\n";
-        std::cout << "We noticed you like the note '" << favoriteNote << "'. Here's what we offer you:\n";
+		std::cout << "\n=== RECOMMENDED FOR YOU ===\n";
+		std::cout << "We noticed you like the note '" << favoriteNote << "'. Here's what we offer you:\n";
 
-        while (printedCount < 3 && !candidates.empty()) {
+		while (printedCount < 3 && !candidates.empty()) {
 
-            // Generating a random number from 0 to (vector size - 1)
-            int randomIndex = std::rand() % candidates.size();
+			// Generating a random number from 0 to (vector size - 1)
+			int randomIndex = std::rand() % candidates.size();
 
-            std::cout << printedCount + 1 << ". "
-                << candidates[randomIndex]->getBrand() << " "
-                << candidates[randomIndex]->getName() << " - "
-                << candidates[randomIndex]->getPrice() << " euro\n";
+			std::cout << printedCount + 1 << ". "
+				<< candidates[randomIndex]->getBrand() << " "
+				<< candidates[randomIndex]->getName() << " - "
+				<< candidates[randomIndex]->getPrice() << " euro\n";
 
-            // ERASING the perfume from the vector so it doesn't fall off again on the next spin!
-            candidates.erase(candidates.begin() + randomIndex);
-            printedCount++;
-        }
+			// ERASING the perfume from the vector so it doesn't fall off again on the next spin!
+			candidates.erase(candidates.begin() + randomIndex);
+			printedCount++;
+		}
 
-        std::cout << "==========================\n\n";
-        });
+		std::cout << "==========================\n\n";
+		});
 
-    currentUser->acceptModifier(visitor);
+	currentUser->acceptModifier(visitor);
 
-    if (!visitor.wasExecuted()) {
-        std::cout << "[Error] Only buyers can receive recommendations.\n";
-    }
+	if (!visitor.wasExecuted()) {
+		std::cout << "[Error] Only buyers can receive recommendations.\n";
+	}
 }

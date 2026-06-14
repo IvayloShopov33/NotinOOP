@@ -15,6 +15,7 @@ void HelpVisitor::visit(const Buyer& buyer) {
 
 void HelpVisitor::visit(const Admin& admin) {
     std::cout << "[Role: ADMIN]\n";
+	std::cout << "create-admin <username> <password>                - Create new admin account\n";
     std::cout << "block-user <username>                             - Block user and delete account\n";
     std::cout << "create-fragrance <name> <brand> <price> <family>  - Add new perfume\n";
     std::cout << "add-quantity <fragrance-name> <quantity>          - Restock perfume\n";

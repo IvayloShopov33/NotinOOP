@@ -23,7 +23,7 @@ User::User(int existingId, const std::string& username, const std::string& passw
     this->password = passwordHash;
 
     if (existingId >= nextId) {
-        nextId = existingId + 1;
+        nextId = existingId;
     }
 }
 

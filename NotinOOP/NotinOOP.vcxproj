@@ -137,6 +137,7 @@
     <ClCompile Include="CancelPurchaseCommand.cpp" />
     <ClCompile Include="CheckoutCommand.cpp" />
     <ClCompile Include="CommandParseException.cpp" />
+    <ClCompile Include="CreateAdminCommand.cpp" />
     <ClCompile Include="CreateFragranceCommand.cpp" />
     <ClCompile Include="DeliverCommand.cpp" />
     <ClCompile Include="Discount.cpp" />
@@ -188,6 +189,7 @@
     <ClInclude Include="CheckoutCommand.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="CommandParseException.h" />
+    <ClInclude Include="CreateAdminCommand.h" />
     <ClInclude Include="CreateFragranceCommand.h" />
     <ClInclude Include="DeliverCommand.h" />
     <ClInclude Include="Discount.h" />

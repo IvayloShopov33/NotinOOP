@@ -3,6 +3,7 @@
 
 #include "Engine.h"
 #include "RegisterCommand.h"
+#include "CreateAdminCommand.h"
 #include "LoginCommand.h"
 #include "LogoutCommand.h"
 #include "EndCommand.h"
@@ -94,6 +95,16 @@ std::unique_ptr<Command> Engine::parseCommand(const std::string& input) {
         std::string password = args[2];
 
         return std::make_unique<RegisterCommand>(username, password);
+    }
+    else if (action == "create-admin") {
+        if (args.size() < 3) {
+            throw CommandParseException("Usage: create-admin <username> <password>");
+        }
+
+        std::string username = args[1];
+        std::string password = args[2];
+
+        return std::make_unique<CreateAdminCommand>(username, password);
     }
     else if (action == "logout") {
         return std::make_unique<LogoutCommand>();
